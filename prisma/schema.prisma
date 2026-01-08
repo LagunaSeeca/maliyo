@@ -1,0 +1,198 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum Role {
+  OWNER
+  MEMBER
+}
+
+enum IncomeCategory {
+  SALARY
+  FREELANCE
+  BUSINESS
+  BONUS
+  GIFT
+  OTHER
+}
+
+enum ExpenseCategory {
+  TRANSPORT
+  PETROL
+  BABY_FOOD
+  BABY_DIAPERS
+  GROCERY
+  UTILITY_ELECTRICITY
+  UTILITY_GAS
+  UTILITY_WATER
+  SAVINGS
+  PERSONAL_EXPENSES
+  LOAN_PAYMENT
+  BIRTHDAYS_WEDDINGS
+  ONLINE_SHOPPING
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  familyMember  FamilyMember?
+}
+
+model Family {
+  id            String    @id @default(cuid())
+  name          String
+  currency      String    @default("AZN")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  members       FamilyMember[]
+  incomes       Income[]
+  expenses      Expense[]
+  loans         Loan[]
+  monthlyPayments MonthlyPayment[]
+}
+
+model FamilyMember {
+  id            String    @id @default(cuid())
+  name          String
+  role          Role      @default(MEMBER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  userId        String?   @unique
+  user          User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  familyId      String
+  family        Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  
+  incomes       Income[]
+  expenses      Expense[]
+  loans         Loan[]
+
+  @@index([familyId])
+}
+
+model Income {
+  id            String          @id @default(cuid())
+  amount        Decimal         @db.Decimal(12, 2)
+  category      IncomeCategory
+  description   String?
+  date          DateTime        // Transaction date (custom date)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  
+  personId      String
+  person        FamilyMember    @relation(fields: [personId], references: [id], onDelete: Cascade)
+  
+  familyId      String
+  family        Family          @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@index([personId])
+  @@index([date])
+  @@index([category])
+  @@index([familyId, date])
+}
+
+model Expense {
+  id            String          @id @default(cuid())
+  amount        Decimal         @db.Decimal(12, 2)
+  category      ExpenseCategory
+  note          String?
+  date          DateTime        // Transaction date (custom date)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  
+  personId      String
+  person        FamilyMember    @relation(fields: [personId], references: [id], onDelete: Cascade)
+  
+  familyId      String
+  family        Family          @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  
+  // Link to loan if this is a loan payment
+  loanId        String?
+  loan          Loan?           @relation(fields: [loanId], references: [id], onDelete: SetNull)
+
+  @@index([familyId])
+  @@index([personId])
+  @@index([date])
+  @@index([category])
+  @@index([familyId, date])
+  @@index([loanId])
+}
+
+model Loan {
+  id              String    @id @default(cuid())
+  name            String
+  totalAmount     Decimal   @db.Decimal(12, 2)
+  startDate       DateTime
+  durationMonths  Int
+  interestRate    Decimal   @db.Decimal(5, 2)  // Yearly interest rate %
+  overdueRate     Decimal   @db.Decimal(5, 2)  // Overdue interest rate %
+  monthlyPayment  Decimal   @db.Decimal(12, 2)
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  ownerId         String
+  owner           FamilyMember @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  
+  familyId        String
+  family          Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  
+  payments        LoanPayment[]
+  expenses        Expense[]   // Loan payment expenses linked to this loan
+
+  @@index([familyId])
+  @@index([ownerId])
+  @@index([isActive])
+}
+
+model LoanPayment {
+  id            String    @id @default(cuid())
+  amount        Decimal   @db.Decimal(12, 2)
+  paymentDate   DateTime  // Custom payment date
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  loanId        String
+  loan          Loan      @relation(fields: [loanId], references: [id], onDelete: Cascade)
+
+  @@index([loanId, paymentDate])
+}
+
+model MonthlyPayment {
+  id            String          @id @default(cuid())
+  name          String
+  amount        Decimal         @db.Decimal(12, 2)
+  dayOfMonth    Int             // 1-31
+  category      ExpenseCategory
+  isActive      Boolean         @default(true)
+  lastPaidDate  DateTime?       // When it was last paid
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  
+  familyId      String
+  family        Family          @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@index([isActive])
+}
