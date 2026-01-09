@@ -32,7 +32,8 @@ export async function GET(request: Request) {
             recentIncomes,
             recentExpenses,
             monthlyPayments,
-            loans
+            loans,
+            savingsAgg
         ] = await Promise.all([
             // Total Income
             prisma.income.aggregate({
@@ -87,12 +88,26 @@ export async function GET(request: Request) {
                 include: {
                     payments: true,
                 }
-            })
+            }),
+            // Savings Expenses for KPI correction
+            prisma.expense.aggregate({
+                where: {
+                    familyId: family.id,
+                    category: "SAVINGS", // Make sure this matches the enum/string exactly
+                    ...(dateFilter && { date: dateFilter }),
+                    ...(personId && { personId }),
+                },
+                _sum: { amount: true },
+            }),
         ])
 
         const totalIncome = Number(incomeAgg._sum.amount || 0)
         const totalExpenses = Number(expenseAgg._sum.amount || 0)
-        const netSavings = totalIncome - totalExpenses
+        const totalSavingsExpenses = Number(savingsAgg._sum.amount || 0)
+
+        // Net Savings = (Income - Expenses) + SavingsExpenses
+        // Logic: Savings expenses are money "saved", not "lost", so we add them back to the net flow
+        const netSavings = (totalIncome - totalExpenses) + totalSavingsExpenses
 
         // Calculate total loan balance
         const totalLoanBalance = loans.reduce((acc, loan) => {

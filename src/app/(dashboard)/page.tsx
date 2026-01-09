@@ -362,12 +362,12 @@ function DashboardContent() { // Changed to function declaration
                                         >
                                             <div className="flex items-center gap-3">
                                                 <div
-                                                    className={`flex h-8 w-8 items-center justify-center rounded-lg ${tx.type === "income"
+                                                    className={`flex h-8 w-8 items-center justify-center rounded-lg ${tx.type === "income" || tx.category === "SAVINGS"
                                                         ? "bg-emerald-500/10"
                                                         : "bg-red-500/10"
                                                         }`}
                                                 >
-                                                    {tx.type === "income" ? (
+                                                    {tx.type === "income" || tx.category === "SAVINGS" ? (
                                                         <ArrowUpRight className="h-4 w-4 text-emerald-600" />
                                                     ) : (
                                                         <ArrowDownRight className="h-4 w-4 text-red-600" />
@@ -385,7 +385,7 @@ function DashboardContent() { // Changed to function declaration
                                                 </div>
                                             </div>
                                             <span
-                                                className={`text-sm font-semibold ${tx.type === "income"
+                                                className={`text-sm font-semibold ${tx.type === "income" || tx.category === "SAVINGS"
                                                     ? "text-emerald-600"
                                                     : "text-red-600"
                                                     }`}
