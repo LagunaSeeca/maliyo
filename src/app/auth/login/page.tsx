@@ -34,14 +34,16 @@ export default function LoginPage() {
             const data = await res.json()
 
             if (!res.ok) {
-                setError(data.error || "Login failed")
+                console.error("Login error response:", data);
+                setError(data.error || "Login failed - check console for details")
                 return
             }
 
             router.push("/")
             router.refresh()
-        } catch {
-            setError("Something went wrong")
+        } catch (err) {
+            console.error("Login exception:", err);
+            setError("Something went wrong - check console")
         } finally {
             setIsLoading(false)
         }
