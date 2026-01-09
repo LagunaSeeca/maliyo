@@ -4,8 +4,10 @@ import { prisma } from "@/lib/prisma"
 
 export async function PATCH(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const { id } = await params
+
     try {
         const user = await getCurrentUser()
         const family = await getCurrentFamily()
@@ -22,7 +24,7 @@ export async function PATCH(
 
         const payment = await prisma.monthlyPayment.update({
             where: {
-                id: params.id,
+                id,
                 familyId: family.id, // Security check
             },
             data: {
@@ -45,8 +47,10 @@ export async function PATCH(
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const { id } = await params
+
     try {
         const user = await getCurrentUser()
         const family = await getCurrentFamily()
@@ -60,7 +64,7 @@ export async function DELETE(
 
         await prisma.monthlyPayment.delete({
             where: {
-                id: params.id,
+                id,
                 familyId: family.id, // Security check
             },
         })
