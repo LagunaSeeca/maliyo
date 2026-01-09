@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Required for Next.js 16+ when using plugins that add webpack config
+  turbopack: {},
 };
 
 export default nextConfig;
