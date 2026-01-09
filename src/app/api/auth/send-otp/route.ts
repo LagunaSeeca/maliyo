@@ -110,10 +110,13 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             message: "Verification code sent to your email",
         })
-    } catch (error) {
+    } catch (error: any) {
         console.error("Send OTP error:", error)
         return NextResponse.json(
-            { error: "Failed to send verification code" },
+            {
+                error: error.message || "Failed to send verification code",
+                details: process.env.NODE_ENV !== 'production' ? error.stack : undefined
+            },
             { status: 500 }
         )
     }

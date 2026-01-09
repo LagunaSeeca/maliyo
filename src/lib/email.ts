@@ -141,7 +141,7 @@ If you didn't request this ${isRegistration ? 'account' : 'password reset'}, you
         return true
     } catch (error) {
         console.error('Failed to send email:', error)
-        return false
+        throw error
     }
 }
 

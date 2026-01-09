@@ -87,10 +87,13 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             message: "If an account exists with this email, you will receive a verification code",
         })
-    } catch (error) {
+    } catch (error: any) {
         console.error("Forgot password error:", error)
         return NextResponse.json(
-            { error: "Failed to process request" },
+            {
+                error: error.message || "Failed to process request",
+                details: process.env.NODE_ENV !== 'production' ? error.stack : undefined
+            },
             { status: 500 }
         )
     }
