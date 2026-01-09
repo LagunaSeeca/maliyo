@@ -5,12 +5,33 @@ import { hashPassword, generateToken, setAuthCookie } from "@/lib/auth"
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json()
-        const { email, password, name, familyName } = body
+        const { email, password, name, familyName, otpCode } = body
 
         // Validate input
-        if (!email || !password || !name || !familyName) {
+        if (!email || !password || !name || !familyName || !otpCode) {
             return NextResponse.json(
-                { error: "All fields are required" },
+                { error: "All fields are required including verification code" },
+                { status: 400 }
+            )
+        }
+
+        // Verify OTP first
+        const otp = await prisma.otp.findFirst({
+            where: {
+                email,
+                code: otpCode,
+                type: 'REGISTRATION',
+                used: false,
+                expiresAt: { gt: new Date() },
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        })
+
+        if (!otp) {
+            return NextResponse.json(
+                { error: "Invalid or expired verification code" },
                 { status: 400 }
             )
         }
@@ -38,23 +59,30 @@ export async function POST(request: NextRequest) {
             },
         })
 
-        // Create user
+        // Create user with verified email
         const user = await prisma.user.create({
             data: {
                 email,
                 password: hashedPassword,
                 name,
+                emailVerified: true,
             },
         })
 
         // Create family member as owner
-        const familyMember = await prisma.familyMember.create({
+        await prisma.familyMember.create({
             data: {
                 name,
                 role: "OWNER",
                 userId: user.id,
                 familyId: family.id,
             },
+        })
+
+        // Mark OTP as used
+        await prisma.otp.update({
+            where: { id: otp.id },
+            data: { used: true },
         })
 
         // Generate JWT token

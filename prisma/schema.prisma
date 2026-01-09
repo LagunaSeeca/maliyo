@@ -41,6 +41,11 @@ enum ExpenseCategory {
   ONLINE_SHOPPING
 }
 
+enum OtpType {
+  REGISTRATION
+  PASSWORD_RESET
+}
+
 // ============================================
 // MODELS
 // ============================================
@@ -50,10 +55,24 @@ model User {
   email         String    @unique
   password      String
   name          String
+  emailVerified Boolean   @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
   familyMember  FamilyMember?
+}
+
+model Otp {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  type      OtpType
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email, type])
+  @@index([expiresAt])
 }
 
 model Family {
