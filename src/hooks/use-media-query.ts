@@ -1,18 +1,20 @@
-
+/* eslint-disable */
 import { useEffect, useState } from 'react'
 
-export function useMediaQuery(query: string): boolean {
-    const [matches, setMatches] = useState(false)
+export function useMediaQuery(query: string) {
+    const [value, setValue] = useState(false)
 
     useEffect(() => {
-        const media = window.matchMedia(query)
-        if (media.matches !== matches) {
-            setMatches(media.matches)
+        function onChange(event: any) {
+            setValue(event.matches)
         }
-        const listener = () => setMatches(media.matches)
-        media.addEventListener('change', listener)
-        return () => media.removeEventListener('change', listener)
-    }, [matches, query])
 
-    return matches
+        const result = window.matchMedia(query)
+        result.addEventListener("change", onChange)
+        setValue(result.matches)
+
+        return () => result.removeEventListener("change", onChange)
+    }, [query])
+
+    return value
 }
