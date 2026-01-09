@@ -2,10 +2,10 @@
 
 import React from "react"
 import Link from "next/link"
-import { Bell, Search, User, Wallet } from "lucide-react"
+import { Bell, Wallet } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { MobileMenuButton } from "./sidebar"
+import { ProfileDropdown } from "./profile-dropdown"
 
 interface HeaderProps {
     title: string
@@ -41,9 +41,7 @@ export function Header({ title, subtitle, onMenuClick, children }: HeaderProps) 
                     <Bell className="h-5 w-5 text-muted-foreground" />
                     <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600">
-                    <User className="h-4 w-4 text-white" />
-                </Button>
+                <ProfileDropdown />
             </div>
         </header>
     )
