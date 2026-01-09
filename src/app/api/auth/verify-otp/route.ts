@@ -42,11 +42,9 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // Mark OTP as used
-        await prisma.otp.update({
-            where: { id: otp.id },
-            data: { used: true },
-        })
+        // Valid OTP found - do not mark as used yet (will be used in registration/reset)
+        // Just return success
+
 
         return NextResponse.json({
             message: "Verification successful",
