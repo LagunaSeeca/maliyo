@@ -105,9 +105,9 @@ export async function GET(request: Request) {
         const totalExpenses = Number(expenseAgg._sum.amount || 0)
         const totalSavingsExpenses = Number(savingsAgg._sum.amount || 0)
 
-        // Net Savings = (Income - Expenses) + SavingsExpenses
-        // Logic: Savings expenses are money "saved", not "lost", so we add them back to the net flow
-        const netSavings = (totalIncome - totalExpenses) + totalSavingsExpenses
+        // Net Savings = Sum of expenses categorized as "SAVINGS"
+        // User requested strict definition: Income doesn't count, only explicit savings allocations count.
+        const netSavings = totalSavingsExpenses
 
         // Calculate total loan balance
         const totalLoanBalance = loans.reduce((acc, loan) => {
