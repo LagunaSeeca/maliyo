@@ -35,6 +35,7 @@ import {
 import { DatePicker } from "@/components/ui/date-picker"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { getApiUrl } from "@/lib/api-config"
+import { useLanguage } from "@/components/providers/LanguageProvider"
 
 interface Member {
     id: string
@@ -72,6 +73,7 @@ interface Loan {
 }
 
 export default function LoansPage() {
+    const { t } = useLanguage()
     const [loans, setLoans] = useState<Loan[]>([])
     const [members, setMembers] = useState<Member[]>([])
     const [totalRemaining, setTotalRemaining] = useState(0)
@@ -164,7 +166,7 @@ export default function LoansPage() {
     }
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this loan?")) return
+        if (!confirm(t.confirm.delete)) return
 
         try {
             const res = await fetch(getApiUrl(`/api/loans/${id}`), { method: "DELETE" })
@@ -179,12 +181,12 @@ export default function LoansPage() {
 
     return (
         <DashboardLayout
-            title="Loans"
-            subtitle="Manage your loans and payments"
+            title={t.loans.title}
+            subtitle=""
             headerContent={
                 <Button onClick={() => setIsDialogOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Loan
+                    {t.loans.addLoan}
                 </Button>
             }
         >
@@ -195,10 +197,10 @@ export default function LoansPage() {
             >
                 <Card className="bg-gradient-to-br from-amber-500 to-orange-600 text-white">
                     <CardContent className="p-6">
-                        <p className="text-amber-100 text-sm">Total Loan Balance</p>
+                        <p className="text-amber-100 text-sm">{t.dashboard.loanBalance}</p>
                         <p className="text-3xl font-bold mt-1">{formatCurrency(totalRemaining)}</p>
                         <p className="text-amber-100 text-sm mt-2">
-                            {loans.filter(l => l.isActive).length} active loans
+                            {loans.filter(l => l.isActive).length} {t.loans.active.toLowerCase()}
                         </p>
                     </CardContent>
                 </Card>
@@ -211,8 +213,8 @@ export default function LoansPage() {
                         <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
                     </div>
                 ) : loans.length === 0 ? (
-                    <div className="col-span-full flex items-center justify-center h-64 text-slate-400">
-                        No loans found
+                    <div className="col-span-full flex items-center justify-center h-64 text-muted-foreground">
+                        {t.common.noData}
                     </div>
                 ) : (
                     loans.map((loan, index) => (
@@ -230,7 +232,7 @@ export default function LoansPage() {
                                     <div className="flex items-center justify-between">
                                         <CardTitle className="text-lg">{loan.name}</CardTitle>
                                         <Badge variant={loan.isActive ? "success" : "secondary"}>
-                                            {loan.isActive ? "Active" : "Completed"}
+                                            {loan.isActive ? t.loans.active : t.loans.completed}
                                         </Badge>
                                     </div>
                                     <p className="text-sm text-muted-foreground">{loan.owner.name}</p>
@@ -238,20 +240,20 @@ export default function LoansPage() {
                                 <CardContent>
                                     <div className="space-y-3">
                                         <div className="flex justify-between text-sm">
-                                            <span className="text-muted-foreground">Progress</span>
+                                            <span className="text-muted-foreground">{t.loans.progress}</span>
                                             <span className="font-medium">{loan.progress.toFixed(1)}%</span>
                                         </div>
                                         <Progress value={loan.progress} />
 
                                         <div className="grid grid-cols-2 gap-4 pt-2">
                                             <div>
-                                                <p className="text-xs text-muted-foreground">Remaining</p>
+                                                <p className="text-xs text-muted-foreground">{t.loans.remainingBalance}</p>
                                                 <p className="font-semibold text-amber-600 dark:text-amber-400">
                                                     {formatCurrency(loan.remainingBalance)}
                                                 </p>
                                             </div>
                                             <div>
-                                                <p className="text-xs text-muted-foreground">Monthly</p>
+                                                <p className="text-xs text-muted-foreground">{t.loans.monthlyPayment}</p>
                                                 <p className="font-semibold">
                                                     {formatCurrency(loan.monthlyPayment)}
                                                 </p>
@@ -259,7 +261,7 @@ export default function LoansPage() {
                                         </div>
 
                                         <div className="pt-2 border-t border-border">
-                                            <p className="text-xs text-muted-foreground">Next Payment</p>
+                                            <p className="text-xs text-muted-foreground">{t.loans.nextPayment}</p>
                                             <p className="text-sm font-medium">
                                                 {formatDate(loan.nextPaymentDate)}
                                             </p>
@@ -281,7 +283,7 @@ export default function LoansPage() {
                                 <div className="flex items-center justify-between">
                                     <DialogTitle>{selectedLoan.name}</DialogTitle>
                                     <Badge variant={selectedLoan.isActive ? "success" : "secondary"}>
-                                        {selectedLoan.isActive ? "Active" : "Completed"}
+                                        {selectedLoan.isActive ? t.loans.active : t.loans.completed}
                                     </Badge>
                                 </div>
                             </DialogHeader>
@@ -289,49 +291,49 @@ export default function LoansPage() {
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4">
                                 <div className="text-center p-3 rounded-xl bg-muted">
                                     <DollarSign className="h-5 w-5 mx-auto text-muted-foreground" />
-                                    <p className="text-xs text-muted-foreground mt-1">Total Amount</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{t.loans.totalAmount}</p>
                                     <p className="font-semibold">{formatCurrency(selectedLoan.totalAmount)}</p>
                                 </div>
                                 <div className="text-center p-3 rounded-xl bg-amber-500/10">
                                     <DollarSign className="h-5 w-5 mx-auto text-amber-500" />
-                                    <p className="text-xs text-muted-foreground mt-1">Remaining</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{t.loans.remainingBalance}</p>
                                     <p className="font-semibold text-amber-600 dark:text-amber-400">
                                         {formatCurrency(selectedLoan.remainingBalance)}
                                     </p>
                                 </div>
                                 <div className="text-center p-3 rounded-xl bg-muted">
                                     <Percent className="h-5 w-5 mx-auto text-muted-foreground" />
-                                    <p className="text-xs text-muted-foreground mt-1">Interest Rate</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{t.loans.interestRate}</p>
                                     <p className="font-semibold">{selectedLoan.interestRate}%</p>
                                 </div>
                                 <div className="text-center p-3 rounded-xl bg-muted">
                                     <Calendar className="h-5 w-5 mx-auto text-muted-foreground" />
-                                    <p className="text-xs text-muted-foreground mt-1">Duration</p>
-                                    <p className="font-semibold">{selectedLoan.durationMonths} months</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{t.loans.duration}</p>
+                                    <p className="font-semibold">{selectedLoan.durationMonths} {t.time.month}</p>
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <p className="text-sm font-medium">Payment Progress</p>
+                                <p className="text-sm font-medium">{t.loans.progress}</p>
                                 <Progress value={selectedLoan.progress} className="h-4" />
                                 <p className="text-xs text-muted-foreground">
-                                    {formatCurrency(selectedLoan.totalPaid)} paid of {formatCurrency(selectedLoan.totalAmount)}
+                                    {formatCurrency(selectedLoan.totalPaid)} / {formatCurrency(selectedLoan.totalAmount)}
                                 </p>
                             </div>
 
                             {/* Payment History */}
                             <div className="mt-4">
-                                <p className="text-sm font-medium mb-2">Payment History</p>
+                                <p className="text-sm font-medium mb-2">{t.loans.paymentHistory}</p>
                                 {selectedLoan.payments.length === 0 ? (
                                     <p className="text-sm text-muted-foreground text-center py-4">
-                                        No payments recorded yet
+                                        {t.common.noData}
                                     </p>
                                 ) : (
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead>Date</TableHead>
-                                                <TableHead>Amount</TableHead>
+                                                <TableHead>{t.income.date}</TableHead>
+                                                <TableHead>{t.income.amount}</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -354,7 +356,7 @@ export default function LoansPage() {
                                     onClick={() => handleDelete(selectedLoan.id)}
                                 >
                                     <Trash2 className="h-4 w-4 mr-2" />
-                                    Delete Loan
+                                    {t.common.delete}
                                 </Button>
                             </DialogFooter>
                         </>
@@ -366,13 +368,13 @@ export default function LoansPage() {
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="max-w-lg">
                     <DialogHeader>
-                        <DialogTitle>Add New Loan</DialogTitle>
+                        <DialogTitle>{t.loans.addLoan}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
-                            <Label>Loan Name</Label>
+                            <Label>{t.loans.loanName}</Label>
                             <Input
-                                placeholder="e.g., Home Mortgage"
+                                placeholder={t.loans.loanName}
                                 value={formData.name}
                                 onChange={(e) =>
                                     setFormData({ ...formData, name: e.target.value })
@@ -382,7 +384,7 @@ export default function LoansPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Loan Owner</Label>
+                            <Label>{t.family.name}</Label>
                             <Select
                                 value={formData.ownerId}
                                 onValueChange={(value) =>
@@ -391,7 +393,7 @@ export default function LoansPage() {
                                 required
                             >
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Select owner" />
+                                    <SelectValue placeholder={t.family.name} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {members.map((member) => (
@@ -405,7 +407,7 @@ export default function LoansPage() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Total Amount (AZN)</Label>
+                                <Label>{t.loans.totalAmount} (AZN)</Label>
                                 <Input
                                     type="number"
                                     step="0.01"
@@ -418,7 +420,7 @@ export default function LoansPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label>Monthly Payment (AZN)</Label>
+                                <Label>{t.loans.monthlyPayment} (AZN)</Label>
                                 <Input
                                     type="number"
                                     step="0.01"
@@ -434,7 +436,7 @@ export default function LoansPage() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Start Date</Label>
+                                <Label>{t.loans.startDate}</Label>
                                 <DatePicker
                                     date={formData.startDate}
                                     onDateChange={(date) =>
@@ -443,7 +445,7 @@ export default function LoansPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label>Duration (months)</Label>
+                                <Label>{t.loans.duration}</Label>
                                 <Input
                                     type="number"
                                     placeholder="12"
@@ -458,7 +460,7 @@ export default function LoansPage() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Interest Rate (%)</Label>
+                                <Label>{t.loans.interestRate} (%)</Label>
                                 <Input
                                     type="number"
                                     step="0.01"
@@ -471,7 +473,7 @@ export default function LoansPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label>Overdue Rate (%)</Label>
+                                <Label>{t.loans.overdueRate} (%)</Label>
                                 <Input
                                     type="number"
                                     step="0.01"
@@ -491,13 +493,13 @@ export default function LoansPage() {
                                 variant="outline"
                                 onClick={() => setIsDialogOpen(false)}
                             >
-                                Cancel
+                                {t.common.cancel}
                             </Button>
                             <Button type="submit" disabled={isSubmitting}>
                                 {isSubmitting ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
-                                    "Create Loan"
+                                    t.common.save
                                 )}
                             </Button>
                         </DialogFooter>

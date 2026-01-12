@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { LanguageProvider } from "@/components/providers/LanguageProvider";
+import { Toaster } from "sonner";
 
 const inter = Inter({
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
   variable: "--font-inter",
 });
 
@@ -32,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="az" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`}>
         <ThemeProvider
           attribute="class"
@@ -40,12 +42,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster />
+          <LanguageProvider>
+            {children}
+            <Toaster />
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
-
-import { Toaster } from "sonner";

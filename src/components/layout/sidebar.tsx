@@ -20,40 +20,57 @@ import {
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useMediaQuery } from "@/hooks/use-media-query"
+import { useLanguage } from "@/components/providers/LanguageProvider"
 
-const navItems = [
+interface NavItem {
+    titleKey: keyof typeof navKeyMap
+    href: string
+    icon: React.ComponentType<{ className?: string }>
+}
+
+const navKeyMap = {
+    dashboard: 'dashboard',
+    income: 'income',
+    expenses: 'expenses',
+    loans: 'loans',
+    payments: 'payments',
+    family: 'family',
+    settings: 'settings',
+} as const
+
+const navItems: NavItem[] = [
     {
-        title: "Dashboard",
+        titleKey: "dashboard",
         href: "/",
         icon: LayoutDashboard,
     },
     {
-        title: "Income",
+        titleKey: "income",
         href: "/income",
         icon: TrendingUp,
     },
     {
-        title: "Expenses",
+        titleKey: "expenses",
         href: "/expenses",
         icon: TrendingDown,
     },
     {
-        title: "Loans",
+        titleKey: "loans",
         href: "/loans",
         icon: Landmark,
     },
     {
-        title: "Payments",
+        titleKey: "payments",
         href: "/payments",
         icon: CalendarClock,
     },
     {
-        title: "Family",
+        titleKey: "family",
         href: "/family",
         icon: Users,
     },
     {
-        title: "Settings",
+        titleKey: "settings",
         href: "/settings",
         icon: Settings,
     },
@@ -67,6 +84,7 @@ interface SidebarProps {
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {
     const pathname = usePathname()
     const isDesktop = useMediaQuery("(min-width: 1024px)")
+    const { t } = useLanguage()
 
     const sidebarVariants = {
         mobile: {
@@ -77,6 +95,10 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
             x: 0,
             opacity: 1,
         }
+    }
+
+    const getNavTitle = (key: keyof typeof navKeyMap): string => {
+        return t.nav[key]
     }
 
     return (
@@ -148,7 +170,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                                             : "text-muted-foreground group-hover:text-foreground"
                                     )}
                                 />
-                                {item.title}
+                                {getNavTitle(item.titleKey)}
                                 {isActive && (
                                     <motion.div
                                         layoutId="activeNav"
@@ -169,7 +191,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                             className="w-full justify-start text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                         >
                             <LogOut className="mr-3 h-5 w-5" />
-                            Log out
+                            {t.nav.logout}
                         </Button>
                     </form>
                 </div>

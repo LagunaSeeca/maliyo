@@ -11,13 +11,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import { getApiUrl } from "@/lib/api-config"
+import { useLanguage } from "@/components/providers/LanguageProvider"
 
 export default function SettingsPage() {
     const { theme, setTheme } = useTheme()
+    const { t } = useLanguage()
     const [mounted, setMounted] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
@@ -57,7 +58,7 @@ export default function SettingsPage() {
             }
         } catch (error) {
             console.error("Failed to fetch user profile", error)
-            toast.error("Failed to load profile data")
+            toast.error(t.errors.somethingWentWrong)
         } finally {
             setIsLoading(false)
         }
@@ -75,14 +76,14 @@ export default function SettingsPage() {
             const data = await res.json()
 
             if (res.ok) {
-                toast.success("Profile updated successfully")
+                toast.success(t.settings.profileUpdated)
                 setUserProfile(prev => ({ ...prev, name: data.user.name }))
             } else {
-                toast.error(data.error || "Failed to update profile")
+                toast.error(data.error || t.errors.somethingWentWrong)
             }
         } catch (error) {
             console.error("Failed to update profile", error)
-            toast.error("Something went wrong")
+            toast.error(t.errors.somethingWentWrong)
         } finally {
             setIsSaving(false)
         }
@@ -92,17 +93,17 @@ export default function SettingsPage() {
         const newSettings = { ...notifications, [key]: value }
         setNotifications(newSettings)
         localStorage.setItem("notification-settings", JSON.stringify(newSettings))
-        toast.success("Notification settings saved")
+        toast.success(t.success.saved)
     }
 
     if (!mounted) {
-        return null // or a loading skeleton
+        return null
     }
 
     return (
         <DashboardLayout
-            title="Settings"
-            subtitle="Manage your account and preferences"
+            title={t.settings.title}
+            subtitle=""
         >
             <div className="grid gap-6 md:grid-cols-2">
                 {/* Profile Settings */}
@@ -117,26 +118,26 @@ export default function SettingsPage() {
                                     <User className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                                 </div>
                                 <div>
-                                    <CardTitle>Profile</CardTitle>
-                                    <CardDescription>Your personal information</CardDescription>
+                                    <CardTitle>{t.settings.profile}</CardTitle>
+                                    <CardDescription>{t.settings.fullName}</CardDescription>
                                 </div>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label>Full Name</Label>
+                                <Label>{t.settings.fullName}</Label>
                                 <Input
-                                    placeholder="Your name"
+                                    placeholder={t.settings.fullName}
                                     value={userProfile.name}
                                     onChange={(e) => setUserProfile({ ...userProfile, name: e.target.value })}
                                     disabled={isLoading}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label>Email</Label>
+                                <Label>{t.settings.email}</Label>
                                 <Input
                                     type="email"
-                                    placeholder="you@example.com"
+                                    placeholder={t.auth.enterEmail}
                                     value={userProfile.email}
                                     disabled={true}
                                     className="bg-muted"
@@ -149,10 +150,10 @@ export default function SettingsPage() {
                                 {isSaving ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Saving...
+                                        {t.common.loading}
                                     </>
                                 ) : (
-                                    "Save Changes"
+                                    t.common.save
                                 )}
                             </Button>
                         </CardContent>
@@ -172,37 +173,37 @@ export default function SettingsPage() {
                                     <Palette className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                                 </div>
                                 <div>
-                                    <CardTitle>Appearance</CardTitle>
-                                    <CardDescription>Customize your experience</CardDescription>
+                                    <CardTitle>{t.settings.appearance}</CardTitle>
+                                    <CardDescription>{t.settings.theme}</CardDescription>
                                 </div>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <div className="space-y-3">
-                                <Label>Theme</Label>
+                                <Label>{t.settings.theme}</Label>
                                 <Tabs value={theme} onValueChange={setTheme} className="w-full">
                                     <TabsList className="grid w-full grid-cols-3">
                                         <TabsTrigger value="light" className="flex items-center gap-2">
                                             <Sun className="h-4 w-4" />
-                                            Light
+                                            {t.settings.themes.light}
                                         </TabsTrigger>
                                         <TabsTrigger value="dark" className="flex items-center gap-2">
                                             <Moon className="h-4 w-4" />
-                                            Dark
+                                            {t.settings.themes.dark}
                                         </TabsTrigger>
                                         <TabsTrigger value="system" className="flex items-center gap-2">
                                             <Laptop className="h-4 w-4" />
-                                            System
+                                            {t.settings.themes.system}
                                         </TabsTrigger>
                                     </TabsList>
                                 </Tabs>
                             </div>
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="font-medium">Currency Display</p>
-                                    <p className="text-sm text-muted-foreground">AZN (Azerbaijani Manat)</p>
+                                    <p className="font-medium">{t.settings.currency}</p>
+                                    <p className="text-sm text-muted-foreground">{t.currency.azn} (Azerbaijani Manat)</p>
                                 </div>
-                                <Button variant="outline" size="sm" disabled>Change</Button>
+                                <Button variant="outline" size="sm" disabled>{t.common.edit}</Button>
                             </div>
                         </CardContent>
                     </Card>
@@ -221,16 +222,16 @@ export default function SettingsPage() {
                                     <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <div>
-                                    <CardTitle>Notifications</CardTitle>
-                                    <CardDescription>Manage your alerts</CardDescription>
+                                    <CardTitle>{t.settings.notifications}</CardTitle>
+                                    <CardDescription>{t.settings.notificationSettings}</CardDescription>
                                 </div>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="font-medium">Payment Reminders</p>
-                                    <p className="text-sm text-muted-foreground">Get notified about upcoming loan payments</p>
+                                    <p className="font-medium">{t.settings.paymentReminders}</p>
+                                    <p className="text-sm text-muted-foreground">{t.dashboard.monthlyPayments}</p>
                                 </div>
                                 <Switch
                                     checked={notifications.payments}
@@ -239,8 +240,8 @@ export default function SettingsPage() {
                             </div>
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="font-medium">Budget Alerts</p>
-                                    <p className="text-sm text-muted-foreground">Warn when approaching budget limits</p>
+                                    <p className="font-medium">{t.settings.weeklyReports}</p>
+                                    <p className="text-sm text-muted-foreground">{t.dashboard.expensesByCategory}</p>
                                 </div>
                                 <Switch
                                     checked={notifications.budget}
@@ -264,21 +265,21 @@ export default function SettingsPage() {
                                     <Lock className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                                 </div>
                                 <div>
-                                    <CardTitle>Security</CardTitle>
-                                    <CardDescription>Password and authentication</CardDescription>
+                                    <CardTitle>{t.settings.security}</CardTitle>
+                                    <CardDescription>{t.settings.changePassword}</CardDescription>
                                 </div>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label>Current Password</Label>
+                                <Label>{t.settings.currentPassword}</Label>
                                 <Input type="password" placeholder="••••••••" />
                             </div>
                             <div className="space-y-2">
-                                <Label>New Password</Label>
+                                <Label>{t.settings.newPassword}</Label>
                                 <Input type="password" placeholder="••••••••" />
                             </div>
-                            <Button>Update Password</Button>
+                            <Button>{t.settings.changePassword}</Button>
                         </CardContent>
                     </Card>
                 </motion.div>

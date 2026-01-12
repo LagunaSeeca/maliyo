@@ -35,17 +35,12 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { FilterProvider, useFilters } from "@/components/filters"
-import { formatCurrency, formatDate, EXPENSE_CATEGORY_LABELS, INCOME_CATEGORY_LABELS } from "@/lib/utils"
-// Import pages content components (we will need to refactor pages to export them or just link to them)
+import { formatCurrency, formatDate, getExpenseCategoryLabel, getIncomeCategoryLabel } from "@/lib/utils"
 import Link from "next/link"
 import { getApiUrl } from "@/lib/api-config"
+import { useLanguage } from "@/components/providers/LanguageProvider"
 
-// Reuse the Dashboard logic...
-
-// ... (I'll implement the Quick Action buttons directly without importing full forms to avoid complexity, 
-// simply redirecting or opening a choice modal would be better, but linking is easiest)
-
-interface MonthlyPayment { // Added MonthlyPayment interface
+interface MonthlyPayment {
     id: string
     name: string
     amount: string
@@ -67,16 +62,16 @@ interface DashboardStats {
         date: string
     }>
     monthlyPayments?: MonthlyPayment[]
-    loanBalance: number // Added loanBalance
+    loanBalance: number
 }
 
-function DashboardContent() { // Changed to function declaration
-    const { filters, setDateRange, setPreset } = useFilters() // Kept original destructuring
+function DashboardContent() {
+    const { filters, setDateRange, setPreset } = useFilters()
     const [stats, setStats] = useState<DashboardStats | null>(null)
     const [isLoading, setIsLoading] = useState(true)
+    const { t } = useLanguage()
 
-    // Fetch stats logic (same as before)
-    const fetchStats = async () => { // Changed to const declaration
+    const fetchStats = async () => {
         setIsLoading(true)
         try {
             const params = new URLSearchParams()
@@ -93,31 +88,31 @@ function DashboardContent() { // Changed to function declaration
                 setStats(data)
             }
         } catch (error) {
-            console.error("Failed to fetch dashboard stats:", error) // Kept original error message
+            console.error("Failed to fetch dashboard stats:", error)
         } finally {
             setIsLoading(false)
         }
     }
 
-    const handlePay = async (paymentId: string) => { // Added handlePay function
+    const handlePay = async (paymentId: string) => {
         try {
             const res = await fetch(getApiUrl(`/api/payments/${paymentId}/pay`), {
                 method: "POST",
             })
 
             if (res.ok) {
-                toast.success("Payment marked as complete")
-                fetchStats() // Refresh dashboard
+                toast.success(t.success.saved)
+                fetchStats()
             } else {
-                toast.error("Failed to process payment")
+                toast.error(t.errors.somethingWentWrong)
             }
         } catch (error) {
             console.error(error)
-            toast.error("Something went wrong")
+            toast.error(t.errors.somethingWentWrong)
         }
     }
 
-    React.useEffect(() => { // Kept original useEffect
+    React.useEffect(() => {
         fetchStats()
     }, [filters.dateRange])
 
@@ -126,7 +121,7 @@ function DashboardContent() { // Changed to function declaration
 
     const kpiCards = [
         {
-            title: "Total Income",
+            title: t.dashboard.totalIncome,
             value: stats?.totalIncome || 0,
             icon: TrendingUp,
             color: "from-emerald-500 to-teal-500",
@@ -134,7 +129,7 @@ function DashboardContent() { // Changed to function declaration
             textColor: "text-emerald-600 dark:text-emerald-400",
         },
         {
-            title: "Total Expenses",
+            title: t.dashboard.totalExpenses,
             value: stats?.totalExpenses || 0,
             icon: TrendingDown,
             color: "from-red-500 to-rose-500",
@@ -142,7 +137,7 @@ function DashboardContent() { // Changed to function declaration
             textColor: "text-red-600 dark:text-red-400",
         },
         {
-            title: "Net Balance",
+            title: t.dashboard.netSavings,
             value: netBalance,
             icon: Wallet,
             color: isPositiveBalance ? "from-blue-500 to-cyan-500" : "from-orange-500 to-red-500",
@@ -150,7 +145,7 @@ function DashboardContent() { // Changed to function declaration
             textColor: isPositiveBalance ? "text-blue-600 dark:text-blue-400" : "text-orange-600 dark:text-orange-400",
         },
         {
-            title: "Savings",
+            title: t.dashboard.netSavings,
             value: stats?.netSavings || 0,
             icon: PiggyBank,
             color: "from-violet-500 to-indigo-500",
@@ -158,7 +153,7 @@ function DashboardContent() { // Changed to function declaration
             textColor: "text-violet-600 dark:text-violet-400",
         },
         {
-            title: "Loan Balance",
+            title: t.dashboard.loanBalance,
             value: stats?.loanBalance || 0,
             icon: Landmark,
             color: "from-amber-500 to-orange-500",
@@ -168,25 +163,25 @@ function DashboardContent() { // Changed to function declaration
     ].filter(Boolean)
 
     const presets = [
-        { label: "This Month", value: "this_month" as const },
-        { label: "Last Month", value: "last_month" as const },
-        { label: "Last 3 Months", value: "last_3_months" as const },
+        { label: t.dashboard.thisMonth, value: "this_month" as const },
+        { label: t.time.lastMonth, value: "last_month" as const },
+        { label: t.time.custom, value: "last_3_months" as const },
     ]
 
     return (
         <DashboardLayout
-            title="Dashboard"
-            subtitle="Your family finance overview"
+            title={t.dashboard.title}
+            subtitle=""
             headerContent={
                 <div className="flex gap-2">
                     <Button size="sm" className="hidden sm:flex" asChild>
                         <Link href="/income">
-                            <Plus className="h-4 w-4 mr-1" /> Income
+                            <Plus className="h-4 w-4 mr-1" /> {t.nav.income}
                         </Link>
                     </Button>
                     <Button size="sm" variant="destructive" className="hidden sm:flex" asChild>
                         <Link href="/expenses">
-                            <Plus className="h-4 w-4 mr-1" /> Expense
+                            <Plus className="h-4 w-4 mr-1" /> {t.nav.expenses}
                         </Link>
                     </Button>
                 </div>
@@ -198,7 +193,7 @@ function DashboardContent() { // Changed to function declaration
                     <Card className="bg-emerald-500/10 border-emerald-500/20 hover:bg-emerald-500/20 transition-colors">
                         <CardContent className="p-3 flex flex-col items-center justify-center text-emerald-600 dark:text-emerald-400">
                             <TrendingUp className="h-5 w-5 mb-1" />
-                            <span className="font-medium text-xs">Add Income</span>
+                            <span className="font-medium text-xs">{t.dashboard.addIncome}</span>
                         </CardContent>
                     </Card>
                 </Link>
@@ -206,7 +201,7 @@ function DashboardContent() { // Changed to function declaration
                     <Card className="bg-red-500/10 border-red-500/20 hover:bg-red-500/20 transition-colors">
                         <CardContent className="p-3 flex flex-col items-center justify-center text-red-600 dark:text-red-400">
                             <TrendingDown className="h-5 w-5 mb-1" />
-                            <span className="font-medium text-xs">Add Expense</span>
+                            <span className="font-medium text-xs">{t.dashboard.addExpense}</span>
                         </CardContent>
                     </Card>
                 </Link>
@@ -214,7 +209,7 @@ function DashboardContent() { // Changed to function declaration
                     <Card className="bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20 transition-colors">
                         <CardContent className="p-3 flex flex-col items-center justify-center text-amber-600 dark:text-amber-400">
                             <Landmark className="h-5 w-5 mb-1" />
-                            <span className="font-medium text-xs">Manage Loans</span>
+                            <span className="font-medium text-xs">{t.loans.title}</span>
                         </CardContent>
                     </Card>
                 </Link>
@@ -246,7 +241,7 @@ function DashboardContent() { // Changed to function declaration
             <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mb-6 sm:mb-8">
                 {kpiCards.map((card, index) => (
                     <motion.div
-                        key={card.title}
+                        key={card.title + index}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
@@ -277,7 +272,7 @@ function DashboardContent() { // Changed to function declaration
                 <div className="lg:col-span-7">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Monthly Payments</CardTitle>
+                            <CardTitle>{t.dashboard.monthlyPayments}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             {isLoading ? (
@@ -299,14 +294,14 @@ function DashboardContent() { // Changed to function declaration
                                                     </div>
                                                     <div className="min-w-0">
                                                         <h4 className="font-medium text-foreground truncate">{payment.name}</h4>
-                                                        <p className="text-sm text-muted-foreground">Due day: {payment.dayOfMonth}</p>
+                                                        <p className="text-sm text-muted-foreground">{t.dashboard.dueOn}: {payment.dayOfMonth}</p>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 pl-10 sm:pl-0">
                                                     <div className="text-left sm:text-right">
                                                         <p className="font-bold text-foreground">{formatCurrency(payment.amount)}</p>
                                                         <p className={`text-xs font-medium ${isPaid ? 'text-emerald-600' : 'text-amber-600'}`}>
-                                                            {isPaid ? 'Paid' : 'Unpaid'}
+                                                            {isPaid ? t.payments.paid : t.payments.unpaid}
                                                         </p>
                                                     </div>
                                                     {!isPaid && (
@@ -315,12 +310,12 @@ function DashboardContent() { // Changed to function declaration
                                                             className="bg-violet-600 hover:bg-violet-700 text-white flex-shrink-0"
                                                             onClick={() => handlePay(payment.id)}
                                                         >
-                                                            Pay
+                                                            {t.dashboard.markAsPaid}
                                                         </Button>
                                                     )}
                                                     {isPaid && (
                                                         <Button size="sm" variant="ghost" disabled className="text-emerald-600 font-medium flex-shrink-0">
-                                                            Done
+                                                            ✓
                                                         </Button>
                                                     )}
                                                 </div>
@@ -330,9 +325,9 @@ function DashboardContent() { // Changed to function declaration
                                 </div>
                             ) : (
                                 <div className="h-48 flex flex-col items-center justify-center text-muted-foreground bg-muted/20 rounded-xl">
-                                    <p>No monthly payments set up</p>
+                                    <p>{t.dashboard.noPaymentsScheduled}</p>
                                     <Button variant="link" asChild className="mt-2 text-violet-600">
-                                        <Link href="/payments">Add Payments</Link>
+                                        <Link href="/payments">{t.payments.addPayment}</Link>
                                     </Button>
                                 </div>
                             )}
@@ -344,7 +339,7 @@ function DashboardContent() { // Changed to function declaration
                 <div className="lg:col-span-5">
                     <Card className="h-full">
                         <CardHeader>
-                            <CardTitle className="text-lg">Recent Transactions</CardTitle>
+                            <CardTitle className="text-lg">{t.dashboard.recentTransactions}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             {isLoading ? (
@@ -376,8 +371,8 @@ function DashboardContent() { // Changed to function declaration
                                                 <div>
                                                     <p className="text-sm font-medium text-foreground">
                                                         {tx.type === "income"
-                                                            ? INCOME_CATEGORY_LABELS[tx.category]
-                                                            : EXPENSE_CATEGORY_LABELS[tx.category] || tx.category}
+                                                            ? getIncomeCategoryLabel(tx.category, t)
+                                                            : getExpenseCategoryLabel(tx.category, t)}
                                                     </p>
                                                     <p className="text-xs text-muted-foreground">
                                                         {tx.person} • {formatDate(tx.date)}
@@ -398,12 +393,12 @@ function DashboardContent() { // Changed to function declaration
                                 </div>
                             ) : (
                                 <div className="h-48 flex items-center justify-center text-muted-foreground">
-                                    No transactions yet
+                                    {t.dashboard.noRecentTransactions}
                                 </div>
                             )}
                             <div className="pt-4 text-center">
                                 <Link href="/expenses" className="text-sm text-violet-600 hover:text-violet-700 font-medium">
-                                    View All Transactions
+                                    {t.common.viewAll}
                                 </Link>
                             </div>
                         </CardContent>
@@ -415,7 +410,7 @@ function DashboardContent() { // Changed to function declaration
                 {/* Expense Breakdown */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-lg">Expense Breakdown</CardTitle>
+                        <CardTitle className="text-lg">{t.dashboard.expensesByCategory}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         {isLoading ? (
@@ -434,8 +429,7 @@ function DashboardContent() { // Changed to function declaration
                                             <div key={item.category} className="space-y-2 p-3 border rounded-lg bg-card/50">
                                                 <div className="flex items-center justify-between text-sm">
                                                     <span className="text-muted-foreground font-medium">
-                                                        {EXPENSE_CATEGORY_LABELS[item.category] ||
-                                                            item.category}
+                                                        {getExpenseCategoryLabel(item.category, t)}
                                                     </span>
                                                     <span className="font-bold text-foreground">
                                                         {formatCurrency(item.amount)}
@@ -456,7 +450,7 @@ function DashboardContent() { // Changed to function declaration
                             </div>
                         ) : (
                             <div className="h-64 flex items-center justify-center text-muted-foreground">
-                                No expenses in this period
+                                {t.common.noData}
                             </div>
                         )}
                     </CardContent>

@@ -9,11 +9,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useLanguage } from "@/components/providers/LanguageProvider"
 
 type Step = 'email' | 'otp' | 'details'
 
 export default function RegisterPage() {
     const router = useRouter()
+    const { t } = useLanguage()
     const [step, setStep] = useState<Step>('email')
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
@@ -54,14 +56,14 @@ export default function RegisterPage() {
             const data = await res.json()
 
             if (!res.ok) {
-                setError(data.error || "Failed to send verification code")
+                setError(data.error || t.errors.somethingWentWrong)
                 return
             }
 
-            setSuccess("Verification code sent to your email!")
+            setSuccess(t.success.saved)
             setStep('otp')
         } catch {
-            setError("Something went wrong")
+            setError(t.errors.somethingWentWrong)
         } finally {
             setIsLoading(false)
         }
@@ -104,7 +106,7 @@ export default function RegisterPage() {
     const handleVerifyOtp = async () => {
         const otp = otpValues.join('')
         if (otp.length !== 6) {
-            setError("Please enter the complete 6-digit code")
+            setError(t.errors.required)
             return
         }
 
@@ -125,14 +127,14 @@ export default function RegisterPage() {
             const data = await res.json()
 
             if (!res.ok) {
-                setError(data.error || "Invalid verification code")
+                setError(data.error || t.errors.somethingWentWrong)
                 return
             }
 
-            setSuccess("Email verified successfully!")
+            setSuccess(t.success.saved)
             setStep('details')
         } catch {
-            setError("Something went wrong")
+            setError(t.errors.somethingWentWrong)
         } finally {
             setIsLoading(false)
         }
@@ -156,14 +158,14 @@ export default function RegisterPage() {
             const data = await res.json()
 
             if (!res.ok) {
-                setError(data.error || "Registration failed")
+                setError(data.error || t.errors.somethingWentWrong)
                 return
             }
 
             router.push("/")
             router.refresh()
         } catch {
-            setError("Something went wrong")
+            setError(t.errors.somethingWentWrong)
         } finally {
             setIsLoading(false)
         }
@@ -187,13 +189,13 @@ export default function RegisterPage() {
             const data = await res.json()
 
             if (!res.ok) {
-                setError(data.error || "Failed to resend code")
+                setError(data.error || t.errors.somethingWentWrong)
                 return
             }
 
-            setSuccess("New verification code sent!")
+            setSuccess(t.success.saved)
         } catch {
-            setError("Something went wrong")
+            setError(t.errors.somethingWentWrong)
         } finally {
             setIsLoading(false)
         }
@@ -205,10 +207,10 @@ export default function RegisterPage() {
                 <React.Fragment key={s}>
                     <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${step === s
-                                ? 'bg-violet-600 text-white'
-                                : ((['email', 'otp', 'details'] as Step[]).indexOf(step) > i)
-                                    ? 'bg-green-500 text-white'
-                                    : 'bg-slate-200 dark:bg-slate-700 text-slate-500'
+                            ? 'bg-violet-600 text-white'
+                            : ((['email', 'otp', 'details'] as Step[]).indexOf(step) > i)
+                                ? 'bg-green-500 text-white'
+                                : 'bg-slate-200 dark:bg-slate-700 text-slate-500'
                             }`}
                     >
                         {(['email', 'otp', 'details'] as Step[]).indexOf(step) > i ? (
@@ -219,8 +221,8 @@ export default function RegisterPage() {
                     </div>
                     {i < 2 && (
                         <div className={`w-8 h-1 rounded ${(['email', 'otp', 'details'] as Step[]).indexOf(step) > i
-                                ? 'bg-green-500'
-                                : 'bg-slate-200 dark:bg-slate-700'
+                            ? 'bg-green-500'
+                            : 'bg-slate-200 dark:bg-slate-700'
                             }`} />
                     )}
                 </React.Fragment>
@@ -248,14 +250,14 @@ export default function RegisterPage() {
                 <Card className="border-0 shadow-2xl shadow-slate-200/50 dark:shadow-none">
                     <CardHeader className="text-center pb-2">
                         <CardTitle className="text-2xl font-bold text-foreground">
-                            {step === 'email' && 'Create your account'}
-                            {step === 'otp' && 'Verify your email'}
-                            {step === 'details' && 'Complete your profile'}
+                            {step === 'email' && t.auth.createAccount}
+                            {step === 'otp' && t.auth.verifyOtp}
+                            {step === 'details' && t.settings.profile}
                         </CardTitle>
                         <CardDescription>
-                            {step === 'email' && 'Enter your email to get started'}
-                            {step === 'otp' && `We sent a code to ${formData.email}`}
-                            {step === 'details' && 'Just a few more details'}
+                            {step === 'email' && t.auth.enterEmail}
+                            {step === 'otp' && formData.email}
+                            {step === 'details' && t.auth.fullName}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-4">
@@ -283,11 +285,11 @@ export default function RegisterPage() {
                                     )}
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="email">Email</Label>
+                                        <Label htmlFor="email">{t.auth.email}</Label>
                                         <Input
                                             id="email"
                                             type="email"
-                                            placeholder="you@example.com"
+                                            placeholder={t.auth.enterEmail}
                                             value={formData.email}
                                             onChange={(e) =>
                                                 setFormData({ ...formData, email: e.target.value })
@@ -305,7 +307,7 @@ export default function RegisterPage() {
                                             <Loader2 className="h-4 w-4 animate-spin" />
                                         ) : (
                                             <>
-                                                Continue
+                                                {t.common.next}
                                                 <Mail className="h-4 w-4 ml-2" />
                                             </>
                                         )}
@@ -368,7 +370,7 @@ export default function RegisterPage() {
                                             <Loader2 className="h-4 w-4 animate-spin" />
                                         ) : (
                                             <>
-                                                Verify Code
+                                                {t.auth.verifyOtp}
                                                 <CheckCircle2 className="h-4 w-4 ml-2" />
                                             </>
                                         )}
@@ -385,7 +387,7 @@ export default function RegisterPage() {
                                             className="text-muted-foreground hover:text-foreground flex items-center gap-1"
                                         >
                                             <ArrowLeft className="h-3 w-3" />
-                                            Change email
+                                            {t.common.back}
                                         </button>
                                         <button
                                             type="button"
@@ -393,7 +395,7 @@ export default function RegisterPage() {
                                             disabled={isLoading}
                                             className="text-violet-600 hover:text-violet-700 font-medium"
                                         >
-                                            Resend code
+                                            {t.auth.resendCode}
                                         </button>
                                     </div>
                                 </motion.div>
@@ -430,7 +432,7 @@ export default function RegisterPage() {
                                     )}
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="name">Your Name</Label>
+                                        <Label htmlFor="name">{t.auth.fullName}</Label>
                                         <Input
                                             id="name"
                                             type="text"
@@ -444,11 +446,11 @@ export default function RegisterPage() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="familyName">Family Name</Label>
+                                        <Label htmlFor="familyName">{t.family.title}</Label>
                                         <Input
                                             id="familyName"
                                             type="text"
-                                            placeholder="Mammadov Family"
+                                            placeholder="Mammadov"
                                             value={formData.familyName}
                                             onChange={(e) =>
                                                 setFormData({ ...formData, familyName: e.target.value })
@@ -458,7 +460,7 @@ export default function RegisterPage() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="password">Password</Label>
+                                        <Label htmlFor="password">{t.auth.password}</Label>
                                         <div className="relative">
                                             <Input
                                                 id="password"
@@ -495,7 +497,7 @@ export default function RegisterPage() {
                                             <Loader2 className="h-4 w-4 animate-spin" />
                                         ) : (
                                             <>
-                                                Create account
+                                                {t.auth.createAccount}
                                                 <ArrowRight className="h-4 w-4 ml-2" />
                                             </>
                                         )}
@@ -505,12 +507,12 @@ export default function RegisterPage() {
                         </AnimatePresence>
 
                         <p className="mt-6 text-center text-sm text-muted-foreground">
-                            Already have an account?{" "}
+                            {t.auth.haveAccount}{" "}
                             <Link
                                 href="/auth/login"
                                 className="font-medium text-violet-600 hover:text-violet-700"
                             >
-                                Sign in
+                                {t.auth.signIn}
                             </Link>
                         </p>
                     </CardContent>

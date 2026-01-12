@@ -5,11 +5,11 @@
 Environment variables loaded from .env
 Prisma schema loaded from prisma\schema.prisma
 
-✔ Generated Prisma Client (v5.21.1) to .\node_modules\@prisma\client in 110ms
+✔ Generated Prisma Client (v5.21.1) to .\node_modules\@prisma\client in 90ms
 
 Start by importing your Prisma Client (See: http://pris.ly/d/importing-client)
 
-Tip: Want real-time updates to your database without manual polling? Discover how with Pulse: https://pris.ly/tip-0-pulse
+Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
 
 ⚠ `eslint` configuration in next.config.ts is no longer supported. See more info here: https://nextjs.org/docs/app/api-reference/cli/next#next-lint-options
 ⚠ Invalid next.config.ts options detected: 
@@ -20,14 +20,14 @@ Tip: Want real-time updates to your database without manual polling? Discover ho
 
 ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
   Creating an optimized production build ...
-✓ Compiled successfully in 4.2s
+✓ Compiled successfully in 9.3s
   Skipping validation of types
   Collecting page data using 11 workers ...
   Generating static pages using 11 workers (0/30) ...
   Generating static pages using 11 workers (7/30) 
   Generating static pages using 11 workers (14/30) 
   Generating static pages using 11 workers (22/30) 
-✓ Generating static pages using 11 workers (30/30) in 579.1ms
+✓ Generating static pages using 11 workers (30/30) in 519.4ms
   Finalizing page optimization ...
 
 Route (app)

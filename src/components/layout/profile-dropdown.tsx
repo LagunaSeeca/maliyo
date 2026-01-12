@@ -3,19 +3,26 @@
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { User, Settings, LogOut, Loader2 } from "lucide-react"
+import { User, Settings, LogOut, Loader2, Globe, Check } from "lucide-react"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
+    DropdownMenuSub,
+    DropdownMenuSubTrigger,
+    DropdownMenuSubContent,
+    DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "@/components/providers/LanguageProvider"
+import { languages, Language } from "@/i18n"
 
 export function ProfileDropdown() {
     const router = useRouter()
     const [isLoggingOut, setIsLoggingOut] = useState(false)
+    const { language, setLanguage, t } = useLanguage()
 
     const handleLogout = async () => {
         setIsLoggingOut(true)
@@ -39,6 +46,10 @@ export function ProfileDropdown() {
         }
     }
 
+    const handleLanguageChange = (lang: Language) => {
+        setLanguage(lang)
+    }
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -51,11 +62,43 @@ export function ProfileDropdown() {
                     <span className="sr-only">Open profile menu</span>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-56">
+                {/* Language Selection Submenu */}
+                <DropdownMenuSub>
+                    <DropdownMenuSubTrigger className="cursor-pointer">
+                        <Globe className="h-4 w-4 mr-2" />
+                        <span>{t.settings.language}</span>
+                        <span className="ml-auto text-xs text-muted-foreground">
+                            {languages.find(l => l.code === language)?.flag}
+                        </span>
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                        <DropdownMenuSubContent className="min-w-[160px]">
+                            {languages.map((lang) => (
+                                <DropdownMenuItem
+                                    key={lang.code}
+                                    onClick={() => handleLanguageChange(lang.code)}
+                                    className="cursor-pointer flex items-center justify-between"
+                                >
+                                    <span className="flex items-center gap-2">
+                                        <span>{lang.flag}</span>
+                                        <span>{lang.name}</span>
+                                    </span>
+                                    {language === lang.code && (
+                                        <Check className="h-4 w-4 text-primary" />
+                                    )}
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                </DropdownMenuSub>
+
+                <DropdownMenuSeparator />
+
                 <DropdownMenuItem asChild>
                     <Link href="/settings" className="flex items-center gap-2 cursor-pointer">
                         <Settings className="h-4 w-4" />
-                        <span>Settings</span>
+                        <span>{t.nav.settings}</span>
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -67,12 +110,12 @@ export function ProfileDropdown() {
                     {isLoggingOut ? (
                         <>
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            <span>Logging out...</span>
+                            <span>{t.auth.loggingOut}</span>
                         </>
                     ) : (
                         <>
                             <LogOut className="h-4 w-4 mr-2" />
-                            <span>Log out</span>
+                            <span>{t.nav.logout}</span>
                         </>
                     )}
                 </DropdownMenuItem>

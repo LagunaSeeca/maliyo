@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useLanguage } from "@/components/providers/LanguageProvider"
 
 export default function LoginPage() {
     const router = useRouter()
@@ -19,6 +20,7 @@ export default function LoginPage() {
         email: "",
         password: "",
     })
+    const { t } = useLanguage()
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -36,7 +38,7 @@ export default function LoginPage() {
 
             if (!res.ok) {
                 console.error("Login error response:", data);
-                setError(data.error || "Login failed - check console for details")
+                setError(data.error || t.errors.invalidCredentials)
                 return
             }
 
@@ -44,7 +46,7 @@ export default function LoginPage() {
             router.refresh()
         } catch (err) {
             console.error("Login exception:", err);
-            setError("Something went wrong - check console")
+            setError(t.errors.somethingWentWrong)
         } finally {
             setIsLoading(false)
         }
@@ -70,10 +72,10 @@ export default function LoginPage() {
                 <Card className="border-0 shadow-2xl shadow-slate-200/50 dark:shadow-none">
                     <CardHeader className="text-center pb-2">
                         <CardTitle className="text-2xl font-bold text-foreground">
-                            Welcome back
+                            {t.auth.welcomeBack}
                         </CardTitle>
                         <CardDescription>
-                            Sign in to your Maliyo account
+                            {t.auth.signInToAccount}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-4">
@@ -89,11 +91,11 @@ export default function LoginPage() {
                             )}
 
                             <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
+                                <Label htmlFor="email">{t.auth.email}</Label>
                                 <Input
                                     id="email"
                                     type="email"
-                                    placeholder="you@example.com"
+                                    placeholder={t.auth.enterEmail}
                                     value={formData.email}
                                     onChange={(e) =>
                                         setFormData({ ...formData, email: e.target.value })
@@ -104,12 +106,12 @@ export default function LoginPage() {
 
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <Label htmlFor="password">Password</Label>
+                                    <Label htmlFor="password">{t.auth.password}</Label>
                                     <Link
                                         href="/auth/forgot-password"
                                         className="text-xs font-medium text-violet-600 hover:text-violet-700"
                                     >
-                                        Forgot password?
+                                        {t.auth.forgotPassword}
                                     </Link>
                                 </div>
                                 <div className="relative">
@@ -147,7 +149,7 @@ export default function LoginPage() {
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
                                     <>
-                                        Sign in
+                                        {t.auth.signIn}
                                         <ArrowRight className="h-4 w-4 ml-2" />
                                     </>
                                 )}
@@ -155,12 +157,12 @@ export default function LoginPage() {
                         </form>
 
                         <p className="mt-6 text-center text-sm text-muted-foreground">
-                            Don&apos;t have an account?{" "}
+                            {t.auth.noAccount}{" "}
                             <Link
                                 href="/auth/register"
                                 className="font-medium text-violet-600 hover:text-violet-700"
                             >
-                                Create one
+                                {t.auth.createAccount}
                             </Link>
                         </p>
                     </CardContent>

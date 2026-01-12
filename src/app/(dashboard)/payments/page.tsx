@@ -33,9 +33,10 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { EXPENSE_CATEGORY_LABELS, formatCurrency } from "@/lib/utils"
+import { formatCurrency, getExpenseCategoryLabel } from "@/lib/utils"
 import { toast } from "sonner"
 import { getApiUrl } from "@/lib/api-config"
+import { useLanguage } from "@/components/providers/LanguageProvider"
 
 interface MonthlyPayment {
     id: string
@@ -47,6 +48,7 @@ interface MonthlyPayment {
 }
 
 export default function PaymentsPage() {
+    const { t } = useLanguage()
     const [payments, setPayments] = useState<MonthlyPayment[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -71,7 +73,7 @@ export default function PaymentsPage() {
             }
         } catch (error) {
             console.error("Failed to fetch payments:", error)
-            toast.error("Failed to load payments")
+            toast.error(t.errors.somethingWentWrong)
         } finally {
             setIsLoading(false)
         }
@@ -101,14 +103,14 @@ export default function PaymentsPage() {
             })
 
             if (res.ok) {
-                toast.success("Payment deleted")
+                toast.success(t.success.deleted)
                 fetchPayments()
             } else {
-                toast.error("Failed to delete payment")
+                toast.error(t.errors.somethingWentWrong)
             }
         } catch (error) {
             console.error(error)
-            toast.error("Something went wrong")
+            toast.error(t.errors.somethingWentWrong)
         } finally {
             setPaymentToDelete(null)
         }
@@ -134,7 +136,7 @@ export default function PaymentsPage() {
             const data = await res.json()
 
             if (res.ok) {
-                toast.success(editingPayment ? "Payment updated" : "Payment created")
+                toast.success(t.success.saved)
                 setIsDialogOpen(false)
                 setFormData({
                     name: "",
@@ -145,20 +147,29 @@ export default function PaymentsPage() {
                 setEditingPayment(null)
                 fetchPayments()
             } else {
-                toast.error(data.error || "Failed to save payment")
+                toast.error(data.error || t.errors.somethingWentWrong)
             }
         } catch (error) {
             console.error("Failed to save payment:", error)
-            toast.error("Something went wrong")
+            toast.error(t.errors.somethingWentWrong)
         } finally {
             setIsSubmitting(false)
         }
     }
 
+    // Expense categories for select
+    const expenseCategories = [
+        { key: 'UTILITIES', label: t.expenses.categories.utilities },
+        { key: 'SUBSCRIPTIONS', label: t.expenses.categories.subscriptions },
+        { key: 'RENT', label: t.expenses.categories.rent },
+        { key: 'INSURANCE', label: t.expenses.categories.insurance },
+        { key: 'OTHER', label: t.expenses.categories.other },
+    ]
+
     return (
         <DashboardLayout
-            title="Monthly Payments"
-            subtitle="Manage your fixed monthly bills"
+            title={t.payments.title}
+            subtitle=""
             headerContent={
                 <Button onClick={() => {
                     setEditingPayment(null)
@@ -166,7 +177,7 @@ export default function PaymentsPage() {
                     setIsDialogOpen(true)
                 }}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Payment
+                    {t.payments.addPayment}
                 </Button>
             }
         >
@@ -177,7 +188,7 @@ export default function PaymentsPage() {
                     </div>
                 ) : payments.length === 0 ? (
                     <div className="col-span-full flex items-center justify-center h-64 text-muted-foreground">
-                        No monthly payments configured
+                        {t.common.noData}
                     </div>
                 ) : (
                     payments.map((payment, index) => (
@@ -213,19 +224,19 @@ export default function PaymentsPage() {
                                             <Calendar className="h-6 w-6 text-violet-500" />
                                         </div>
                                         <Badge variant="outline" className="font-mono">
-                                            Day {payment.dayOfMonth}
+                                            {t.payments.day} {payment.dayOfMonth}
                                         </Badge>
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-lg">{payment.name}</h3>
                                         <p className="text-sm text-muted-foreground mb-4">
-                                            {EXPENSE_CATEGORY_LABELS[payment.category] || payment.category}
+                                            {getExpenseCategoryLabel(payment.category, t)}
                                         </p>
                                         <div className="flex items-baseline gap-1">
                                             <span className="text-2xl font-bold text-foreground">
                                                 {formatCurrency(payment.amount)}
                                             </span>
-                                            <span className="text-sm text-muted-foreground">/ month</span>
+                                            <span className="text-sm text-muted-foreground">/ {t.time.month}</span>
                                         </div>
                                     </div>
                                 </CardContent>
@@ -238,13 +249,13 @@ export default function PaymentsPage() {
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{editingPayment ? "Edit Payment" : "Add Monthly Payment"}</DialogTitle>
+                        <DialogTitle>{editingPayment ? t.common.edit : t.payments.addPayment}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
-                            <Label>Payment Name</Label>
+                            <Label>{t.payments.name}</Label>
                             <Input
-                                placeholder="e.g., Electricity Bill"
+                                placeholder={t.payments.name}
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 required
@@ -253,7 +264,7 @@ export default function PaymentsPage() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Amount (AZN)</Label>
+                                <Label>{t.payments.amount} (AZN)</Label>
                                 <Input
                                     type="number"
                                     step="0.01"
@@ -264,7 +275,7 @@ export default function PaymentsPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label>Day of Month</Label>
+                                <Label>{t.payments.day}</Label>
                                 <Input
                                     type="number"
                                     min="1"
@@ -278,19 +289,19 @@ export default function PaymentsPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Category</Label>
+                            <Label>{t.expenses.category}</Label>
                             <Select
                                 value={formData.category}
                                 onValueChange={(value) => setFormData({ ...formData, category: value })}
                                 required
                             >
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Select category" />
+                                    <SelectValue placeholder={t.expenses.category} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {Object.entries(EXPENSE_CATEGORY_LABELS).map(([key, label]) => (
-                                        <SelectItem key={key} value={key}>
-                                            {label}
+                                    {expenseCategories.map((cat) => (
+                                        <SelectItem key={cat.key} value={cat.key}>
+                                            {cat.label}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -303,13 +314,13 @@ export default function PaymentsPage() {
                                 variant="outline"
                                 onClick={() => setIsDialogOpen(false)}
                             >
-                                Cancel
+                                {t.common.cancel}
                             </Button>
                             <Button type="submit" disabled={isSubmitting}>
                                 {isSubmitting ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
-                                    editingPayment ? "Save Changes" : "Add Payment"
+                                    t.common.save
                                 )}
                             </Button>
                         </DialogFooter>
@@ -320,19 +331,18 @@ export default function PaymentsPage() {
             <AlertDialog open={!!paymentToDelete} onOpenChange={(open: boolean) => !open && setPaymentToDelete(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogTitle>{t.confirm.title}</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This will permanently delete the monthly payment "{paymentToDelete?.name}".
-                            This action cannot be undone.
+                            {t.confirm.delete}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleDelete}
                             className="bg-red-600 hover:bg-red-700"
                         >
-                            Delete
+                            {t.common.delete}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

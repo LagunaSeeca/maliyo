@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns"
+import type { Translations } from "@/i18n"
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -47,6 +48,61 @@ export function getLastNMonthsRange(n: number) {
     return { start, end }
 }
 
+// Category key mappings for translation lookups
+const INCOME_CATEGORY_KEYS: Record<string, keyof Translations['income']['sources']> = {
+    SALARY: 'salary',
+    FREELANCE: 'freelance',
+    BUSINESS: 'business',
+    INVESTMENT: 'investment',
+    GIFT: 'gift',
+    BONUS: 'other',
+    OTHER: 'other',
+}
+
+const EXPENSE_CATEGORY_KEYS: Record<string, keyof Translations['expenses']['categories']> = {
+    TRANSPORT: 'transport',
+    PETROL: 'transport',
+    FOOD: 'food',
+    BABY_FOOD: 'food',
+    BABY_DIAPERS: 'shopping',
+    GROCERY: 'food',
+    UTILITY_ELECTRICITY: 'utilities',
+    UTILITY_GAS: 'utilities',
+    UTILITY_WATER: 'utilities',
+    SAVINGS: 'other',
+    PERSONAL_EXPENSES: 'shopping',
+    LOAN_PAYMENT: 'other',
+    BIRTHDAYS_WEDDINGS: 'entertainment',
+    ONLINE_SHOPPING: 'shopping',
+    HEALTH: 'health',
+    EDUCATION: 'education',
+    TRAVEL: 'travel',
+    RENT: 'rent',
+    INSURANCE: 'insurance',
+    SUBSCRIPTIONS: 'subscriptions',
+    ENTERTAINMENT: 'entertainment',
+    OTHER: 'other',
+}
+
+// Get translated income category label
+export function getIncomeCategoryLabel(category: string, t: Translations): string {
+    const key = INCOME_CATEGORY_KEYS[category]
+    if (key && t.income.sources[key]) {
+        return t.income.sources[key]
+    }
+    return INCOME_CATEGORY_LABELS[category] || category
+}
+
+// Get translated expense category label
+export function getExpenseCategoryLabel(category: string, t: Translations): string {
+    const key = EXPENSE_CATEGORY_KEYS[category]
+    if (key && t.expenses.categories[key]) {
+        return t.expenses.categories[key]
+    }
+    return EXPENSE_CATEGORY_LABELS[category] || category
+}
+
+// Fallback English labels (kept for backwards compatibility)
 export const INCOME_CATEGORY_LABELS: Record<string, string> = {
     SALARY: "Salary",
     FREELANCE: "Freelance / Side Income",

@@ -32,8 +32,9 @@ import {
 } from "@/components/ui/select"
 import { DatePicker } from "@/components/ui/date-picker"
 import { GlobalFilter, useFilters } from "@/components/filters"
-import { formatCurrency, formatDate, formatDateTime, EXPENSE_CATEGORY_LABELS } from "@/lib/utils"
+import { formatCurrency, formatDate, formatDateTime, getExpenseCategoryLabel } from "@/lib/utils"
 import { getApiUrl } from "@/lib/api-config"
+import { useLanguage } from "@/components/providers/LanguageProvider"
 
 interface Member {
     id: string
@@ -64,6 +65,7 @@ interface Expense {
 
 export default function ExpensesPage() {
     const { filters } = useFilters()
+    const { t } = useLanguage()
     const [expenses, setExpenses] = useState<Expense[]>([])
     const [members, setMembers] = useState<Member[]>([])
     const [loans, setLoans] = useState<Loan[]>([])
@@ -179,7 +181,7 @@ export default function ExpensesPage() {
     }
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this expense?")) return
+        if (!confirm(t.confirm.delete)) return
 
         try {
             const res = await fetch(getApiUrl(`/api/expenses/${id}`), { method: "DELETE" })
@@ -191,14 +193,31 @@ export default function ExpensesPage() {
         }
     }
 
+    // Expense categories
+    const expenseCategories = [
+        { key: 'TRANSPORT', label: t.expenses.categories.transport },
+        { key: 'FOOD', label: t.expenses.categories.food },
+        { key: 'UTILITIES', label: t.expenses.categories.utilities },
+        { key: 'HEALTH', label: t.expenses.categories.health },
+        { key: 'ENTERTAINMENT', label: t.expenses.categories.entertainment },
+        { key: 'SHOPPING', label: t.expenses.categories.shopping },
+        { key: 'EDUCATION', label: t.expenses.categories.education },
+        { key: 'TRAVEL', label: t.expenses.categories.travel },
+        { key: 'RENT', label: t.expenses.categories.rent },
+        { key: 'INSURANCE', label: t.expenses.categories.insurance },
+        { key: 'SUBSCRIPTIONS', label: t.expenses.categories.subscriptions },
+        { key: 'OTHER', label: t.expenses.categories.other },
+        { key: 'LOAN_PAYMENT', label: t.loans.title },
+    ]
+
     return (
         <DashboardLayout
-            title="Expenses"
-            subtitle="Track all your expenses"
+            title={t.expenses.title}
+            subtitle=""
             headerContent={
                 <Button onClick={() => setIsDialogOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Expense
+                    {t.expenses.addExpense}
                 </Button>
             }
         >
@@ -212,11 +231,11 @@ export default function ExpensesPage() {
                 className="mt-6"
             >
                 <Card className="bg-gradient-to-br from-red-500 to-rose-600 text-white">
-                    <CardContent className="p-6">
-                        <p className="text-red-100 text-sm">Total Expenses</p>
+                    <CardContent className="py-6 px-4 flex flex-col justify-center items-start text-left">
+                        <p className="text-red-100 text-sm">{t.dashboard.totalExpenses}</p>
                         <p className="text-3xl font-bold mt-1">{formatCurrency(total)}</p>
                         <p className="text-red-100 text-sm mt-2">
-                            {expenses.length} transactions in selected period
+                            {expenses.length} {t.dashboard.recentTransactions.toLowerCase()}
                         </p>
                     </CardContent>
                 </Card>
@@ -225,7 +244,7 @@ export default function ExpensesPage() {
             {/* Expenses Table */}
             <Card className="mt-6">
                 <CardHeader>
-                    <CardTitle>Expense History</CardTitle>
+                    <CardTitle>{t.expenses.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
@@ -234,25 +253,24 @@ export default function ExpensesPage() {
                         </div>
                     ) : expenses.length === 0 ? (
                         <div className="flex items-center justify-center h-64 text-muted-foreground">
-                            No expense records found
+                            {t.common.noData}
                         </div>
                     ) : (
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead>Amount</TableHead>
-                                    <TableHead>Person</TableHead>
-                                    <TableHead>Transaction Date</TableHead>
-                                    <TableHead>Created</TableHead>
-                                    <TableHead className="w-12"></TableHead>
+                                    <TableHead>{t.expenses.category}</TableHead>
+                                    <TableHead>{t.expenses.amount}</TableHead>
+                                    <TableHead>{t.family.name}</TableHead>
+                                    <TableHead>{t.expenses.date}</TableHead>
+                                    <TableHead></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {expenses.map((expense) => (
                                     <TableRow key={expense.id}>
                                         <TableCell className="font-medium">
-                                            {EXPENSE_CATEGORY_LABELS[expense.category] || expense.category}
+                                            {getExpenseCategoryLabel(expense.category, t)}
                                             {expense.loan && (
                                                 <p className="text-xs text-violet-500 mt-0.5">
                                                     → {expense.loan.name}
@@ -269,9 +287,6 @@ export default function ExpensesPage() {
                                         </TableCell>
                                         <TableCell>{expense.person.name}</TableCell>
                                         <TableCell>{formatDate(expense.date)}</TableCell>
-                                        <TableCell className="text-muted-foreground">
-                                            {formatDateTime(expense.createdAt)}
-                                        </TableCell>
                                         <TableCell>
                                             <Button
                                                 variant="ghost"
@@ -294,11 +309,11 @@ export default function ExpensesPage() {
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Add Expense</DialogTitle>
+                        <DialogTitle>{t.expenses.addExpense}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
-                            <Label>Amount (AZN)</Label>
+                            <Label>{t.expenses.amount} (AZN)</Label>
                             <Input
                                 type="number"
                                 step="0.01"
@@ -312,7 +327,7 @@ export default function ExpensesPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Category</Label>
+                            <Label>{t.expenses.category}</Label>
                             <Select
                                 value={formData.category}
                                 onValueChange={(value) =>
@@ -321,12 +336,12 @@ export default function ExpensesPage() {
                                 required
                             >
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Select category" />
+                                    <SelectValue placeholder={t.expenses.category} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {Object.entries(EXPENSE_CATEGORY_LABELS).map(([key, label]) => (
-                                        <SelectItem key={key} value={key}>
-                                            {label}
+                                    {expenseCategories.map((cat) => (
+                                        <SelectItem key={cat.key} value={cat.key}>
+                                            {cat.label}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -335,7 +350,7 @@ export default function ExpensesPage() {
 
                         {formData.category === "LOAN_PAYMENT" && (
                             <div className="space-y-2">
-                                <Label>Select Loan</Label>
+                                <Label>{t.loans.title}</Label>
                                 <Select
                                     value={formData.loanId}
                                     onValueChange={(value) =>
@@ -344,7 +359,7 @@ export default function ExpensesPage() {
                                     required
                                 >
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select loan" />
+                                        <SelectValue placeholder={t.loans.title} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {loans.map((loan) => (
@@ -358,7 +373,7 @@ export default function ExpensesPage() {
                         )}
 
                         <div className="space-y-2">
-                            <Label>Person</Label>
+                            <Label>{t.family.name}</Label>
                             <Select
                                 value={formData.personId}
                                 onValueChange={(value) =>
@@ -367,7 +382,7 @@ export default function ExpensesPage() {
                                 required
                             >
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Select person" />
+                                    <SelectValue placeholder={t.family.name} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {members.map((member) => (
@@ -380,7 +395,7 @@ export default function ExpensesPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Transaction Date</Label>
+                            <Label>{t.expenses.date}</Label>
                             <DatePicker
                                 date={formData.date}
                                 onDateChange={(date) =>
@@ -390,9 +405,9 @@ export default function ExpensesPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Note (Optional)</Label>
+                            <Label>{t.expenses.notes}</Label>
                             <Input
-                                placeholder="Add a note..."
+                                placeholder={t.expenses.notes}
                                 value={formData.note}
                                 onChange={(e) =>
                                     setFormData({ ...formData, note: e.target.value })
@@ -406,13 +421,13 @@ export default function ExpensesPage() {
                                 variant="outline"
                                 onClick={() => setIsDialogOpen(false)}
                             >
-                                Cancel
+                                {t.common.cancel}
                             </Button>
                             <Button type="submit" disabled={isSubmitting}>
                                 {isSubmitting ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
-                                    "Add Expense"
+                                    t.expenses.addExpense
                                 )}
                             </Button>
                         </DialogFooter>

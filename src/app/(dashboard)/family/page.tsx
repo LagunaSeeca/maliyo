@@ -24,6 +24,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { getApiUrl } from "@/lib/api-config"
+import { useLanguage } from "@/components/providers/LanguageProvider"
 
 interface Member {
     id: string
@@ -37,6 +38,7 @@ interface Member {
 }
 
 export default function FamilyPage() {
+    const { t } = useLanguage()
     const [members, setMembers] = useState<Member[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -92,12 +94,12 @@ export default function FamilyPage() {
 
     return (
         <DashboardLayout
-            title="Family Members"
-            subtitle="Manage your family wallet members"
+            title={t.family.title}
+            subtitle=""
             headerContent={
                 <Button onClick={() => setIsDialogOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Member
+                    {t.family.addMember}
                 </Button>
             }
         >
@@ -107,12 +109,12 @@ export default function FamilyPage() {
                 animate={{ opacity: 1, y: 0 }}
             >
                 <Card className="bg-gradient-to-br from-violet-500 to-indigo-600 text-white">
-                    <CardContent className="p-6 flex items-center gap-4">
+                    <CardContent className="py-6 px-4 flex items-center gap-4">
                         <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20">
                             <UsersIcon className="h-7 w-7" />
                         </div>
                         <div>
-                            <p className="text-violet-100 text-sm">Family Members</p>
+                            <p className="text-violet-100 text-sm">{t.family.title}</p>
                             <p className="text-3xl font-bold">{members.length}</p>
                         </div>
                     </CardContent>
@@ -127,7 +129,7 @@ export default function FamilyPage() {
                     </div>
                 ) : members.length === 0 ? (
                     <div className="col-span-full flex items-center justify-center h-64 text-muted-foreground">
-                        No family members found
+                        {t.common.noData}
                     </div>
                 ) : (
                     members.map((member, index) => (
@@ -156,7 +158,7 @@ export default function FamilyPage() {
                                             className="flex items-center gap-1"
                                         >
                                             {member.role === "OWNER" && <Crown className="h-3 w-3" />}
-                                            {member.role}
+                                            {member.role === "OWNER" ? t.family.roles.admin : t.family.roles.member}
                                         </Badge>
                                     </div>
                                 </CardContent>
@@ -170,13 +172,13 @@ export default function FamilyPage() {
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Add Family Member</DialogTitle>
+                        <DialogTitle>{t.family.addMember}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
-                            <Label>Name</Label>
+                            <Label>{t.family.name}</Label>
                             <Input
-                                placeholder="Enter member name"
+                                placeholder={t.family.name}
                                 value={formData.name}
                                 onChange={(e) =>
                                     setFormData({ ...formData, name: e.target.value })
@@ -186,7 +188,7 @@ export default function FamilyPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Role</Label>
+                            <Label>{t.family.role}</Label>
                             <Select
                                 value={formData.role}
                                 onValueChange={(value) =>
@@ -194,23 +196,23 @@ export default function FamilyPage() {
                                 }
                             >
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Select role" />
+                                    <SelectValue placeholder={t.family.role} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="MEMBER">Member</SelectItem>
-                                    <SelectItem value="OWNER">Owner</SelectItem>
+                                    <SelectItem value="MEMBER">{t.family.roles.member}</SelectItem>
+                                    <SelectItem value="OWNER">{t.family.roles.admin}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
 
                         <div className="pt-4 border-t border-border">
-                            <h4 className="text-sm font-medium mb-3 text-foreground">Login Details (Optional)</h4>
+                            <h4 className="text-sm font-medium mb-3 text-foreground">{t.auth.email}</h4>
                             <div className="space-y-3">
                                 <div className="space-y-2">
-                                    <Label>Email</Label>
+                                    <Label>{t.auth.email}</Label>
                                     <Input
                                         type="email"
-                                        placeholder="member@example.com"
+                                        placeholder={t.auth.enterEmail}
                                         value={formData.email}
                                         onChange={(e) =>
                                             setFormData({ ...formData, email: e.target.value })
@@ -218,7 +220,7 @@ export default function FamilyPage() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Password</Label>
+                                    <Label>{t.auth.password}</Label>
                                     <Input
                                         type="password"
                                         placeholder="••••••••"
@@ -237,13 +239,13 @@ export default function FamilyPage() {
                                 variant="outline"
                                 onClick={() => setIsDialogOpen(false)}
                             >
-                                Cancel
+                                {t.common.cancel}
                             </Button>
                             <Button type="submit" disabled={isSubmitting}>
                                 {isSubmitting ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
-                                    "Add Member"
+                                    t.family.addMember
                                 )}
                             </Button>
                         </DialogFooter>

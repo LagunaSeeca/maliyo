@@ -30,11 +30,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { DatePicker, DateRangePicker } from "@/components/ui/date-picker"
+import { DatePicker } from "@/components/ui/date-picker"
 import { GlobalFilter, useFilters } from "@/components/filters"
-import { formatCurrency, formatDate, formatDateTime, INCOME_CATEGORY_LABELS } from "@/lib/utils"
+import { formatCurrency, formatDate, formatDateTime, getIncomeCategoryLabel } from "@/lib/utils"
 import { getApiUrl } from "@/lib/api-config"
-import type { DateRange } from "react-day-picker"
+import { useLanguage } from "@/components/providers/LanguageProvider"
 
 interface Member {
     id: string
@@ -56,6 +56,7 @@ interface Income {
 
 export default function IncomePage() {
     const { filters } = useFilters()
+    const { t } = useLanguage()
     const [incomes, setIncomes] = useState<Income[]>([])
     const [members, setMembers] = useState<Member[]>([])
     const [total, setTotal] = useState(0)
@@ -154,7 +155,7 @@ export default function IncomePage() {
     }
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this income?")) return
+        if (!confirm(t.confirm.delete)) return
 
         try {
             const res = await fetch(getApiUrl(`/api/income/${id}`), { method: "DELETE" })
@@ -166,14 +167,24 @@ export default function IncomePage() {
         }
     }
 
+    // Income category options
+    const incomeCategories = [
+        { key: 'SALARY', label: t.income.sources.salary },
+        { key: 'FREELANCE', label: t.income.sources.freelance },
+        { key: 'BUSINESS', label: t.income.sources.business },
+        { key: 'INVESTMENT', label: t.income.sources.investment },
+        { key: 'GIFT', label: t.income.sources.gift },
+        { key: 'OTHER', label: t.income.sources.other },
+    ]
+
     return (
         <DashboardLayout
-            title="Income"
-            subtitle="Track all your income sources"
+            title={t.income.title}
+            subtitle=""
             headerContent={
                 <Button onClick={() => setIsDialogOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Income
+                    {t.income.addIncome}
                 </Button>
             }
         >
@@ -187,11 +198,11 @@ export default function IncomePage() {
                 className="mt-6"
             >
                 <Card className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
-                    <CardContent className="p-6">
-                        <p className="text-emerald-100 text-sm">Total Income</p>
+                    <CardContent className="py-6 px-4 flex flex-col justify-center items-start text-left">
+                        <p className="text-emerald-100 text-sm">{t.dashboard.totalIncome}</p>
                         <p className="text-3xl font-bold mt-1">{formatCurrency(total)}</p>
                         <p className="text-emerald-100 text-sm mt-2">
-                            {incomes.length} transactions in selected period
+                            {incomes.length} {t.dashboard.recentTransactions.toLowerCase()}
                         </p>
                     </CardContent>
                 </Card>
@@ -200,7 +211,7 @@ export default function IncomePage() {
             {/* Income Table */}
             <Card className="mt-6">
                 <CardHeader>
-                    <CardTitle>Income History</CardTitle>
+                    <CardTitle>{t.income.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
@@ -209,25 +220,24 @@ export default function IncomePage() {
                         </div>
                     ) : incomes.length === 0 ? (
                         <div className="flex items-center justify-center h-64 text-muted-foreground">
-                            No income records found
+                            {t.common.noData}
                         </div>
                     ) : (
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Source</TableHead>
-                                    <TableHead>Amount</TableHead>
-                                    <TableHead>Person</TableHead>
-                                    <TableHead>Transaction Date</TableHead>
-                                    <TableHead>Created</TableHead>
-                                    <TableHead className="w-12"></TableHead>
+                                    <TableHead>{t.income.source}</TableHead>
+                                    <TableHead>{t.income.amount}</TableHead>
+                                    <TableHead>{t.family.name}</TableHead>
+                                    <TableHead>{t.income.date}</TableHead>
+                                    <TableHead></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {incomes.map((income) => (
                                     <TableRow key={income.id}>
                                         <TableCell className="font-medium">
-                                            {INCOME_CATEGORY_LABELS[income.category] || income.category}
+                                            {getIncomeCategoryLabel(income.category, t)}
                                             {income.description && (
                                                 <p className="text-xs text-muted-foreground mt-0.5">
                                                     {income.description}
@@ -239,9 +249,6 @@ export default function IncomePage() {
                                         </TableCell>
                                         <TableCell>{income.person.name}</TableCell>
                                         <TableCell>{formatDate(income.date)}</TableCell>
-                                        <TableCell className="text-muted-foreground">
-                                            {formatDateTime(income.createdAt)}
-                                        </TableCell>
                                         <TableCell>
                                             <Button
                                                 variant="ghost"
@@ -264,11 +271,11 @@ export default function IncomePage() {
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Add Income</DialogTitle>
+                        <DialogTitle>{t.income.addIncome}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
-                            <Label>Amount (AZN)</Label>
+                            <Label>{t.income.amount} (AZN)</Label>
                             <Input
                                 type="number"
                                 step="0.01"
@@ -282,7 +289,7 @@ export default function IncomePage() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Category</Label>
+                            <Label>{t.expenses.category}</Label>
                             <Select
                                 value={formData.category}
                                 onValueChange={(value) =>
@@ -291,12 +298,12 @@ export default function IncomePage() {
                                 required
                             >
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Select category" />
+                                    <SelectValue placeholder={t.expenses.category} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {Object.entries(INCOME_CATEGORY_LABELS).map(([key, label]) => (
-                                        <SelectItem key={key} value={key}>
-                                            {label}
+                                    {incomeCategories.map((cat) => (
+                                        <SelectItem key={cat.key} value={cat.key}>
+                                            {cat.label}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -304,7 +311,7 @@ export default function IncomePage() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Person</Label>
+                            <Label>{t.family.name}</Label>
                             <Select
                                 value={formData.personId}
                                 onValueChange={(value) =>
@@ -313,7 +320,7 @@ export default function IncomePage() {
                                 required
                             >
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Select person" />
+                                    <SelectValue placeholder={t.family.name} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {members.map((member) => (
@@ -326,7 +333,7 @@ export default function IncomePage() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Transaction Date</Label>
+                            <Label>{t.income.date}</Label>
                             <DatePicker
                                 date={formData.date}
                                 onDateChange={(date) =>
@@ -336,9 +343,9 @@ export default function IncomePage() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Description (Optional)</Label>
+                            <Label>{t.income.notes}</Label>
                             <Input
-                                placeholder="Add a note..."
+                                placeholder={t.income.notes}
                                 value={formData.description}
                                 onChange={(e) =>
                                     setFormData({ ...formData, description: e.target.value })
@@ -352,13 +359,13 @@ export default function IncomePage() {
                                 variant="outline"
                                 onClick={() => setIsDialogOpen(false)}
                             >
-                                Cancel
+                                {t.common.cancel}
                             </Button>
                             <Button type="submit" disabled={isSubmitting}>
                                 {isSubmitting ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
-                                    "Add Income"
+                                    t.income.addIncome
                                 )}
                             </Button>
                         </DialogFooter>

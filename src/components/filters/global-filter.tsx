@@ -12,7 +12,8 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { useFilters } from "./filter-context"
-import { EXPENSE_CATEGORY_LABELS, INCOME_CATEGORY_LABELS } from "@/lib/utils"
+import { EXPENSE_CATEGORY_LABELS, INCOME_CATEGORY_LABELS, getIncomeCategoryLabel, getExpenseCategoryLabel } from "@/lib/utils"
+import { useLanguage } from "@/components/providers/LanguageProvider"
 
 interface Member {
     id: string
@@ -47,13 +48,32 @@ export function GlobalFilter({
         setPreset,
         resetFilters,
     } = useFilters()
+    const { t } = useLanguage()
 
-    const categories =
-        type === "income"
-            ? INCOME_CATEGORY_LABELS
-            : type === "expense"
-                ? EXPENSE_CATEGORY_LABELS
-                : { ...INCOME_CATEGORY_LABELS, ...EXPENSE_CATEGORY_LABELS }
+    const PRESETS = [
+        { value: "this_month", label: t.time.thisMonth },
+        { value: "last_month", label: t.time.lastMonth },
+        { value: "last_3_months", label: t.time.last3Months },
+        { value: "custom", label: t.time.custom },
+    ]
+
+    const getCategories = () => {
+        const incomeCats = Object.keys(INCOME_CATEGORY_LABELS).reduce((acc, key) => {
+            acc[key] = getIncomeCategoryLabel(key, t)
+            return acc
+        }, {} as Record<string, string>)
+
+        const expenseCats = Object.keys(EXPENSE_CATEGORY_LABELS).reduce((acc, key) => {
+            acc[key] = getExpenseCategoryLabel(key, t)
+            return acc
+        }, {} as Record<string, string>)
+
+        if (type === "income") return incomeCats
+        if (type === "expense") return expenseCats
+        return { ...incomeCats, ...expenseCats }
+    }
+
+    const categories = getCategories()
 
     const hasActiveFilters =
         filters.category !== null || filters.personId !== null
@@ -62,7 +82,7 @@ export function GlobalFilter({
         <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
                 <Filter className="h-4 w-4" />
-                <span className="text-sm font-medium">Filters</span>
+                <span className="text-sm font-medium">{t.common.filter}</span>
             </div>
 
             {/* Date Preset */}
@@ -73,7 +93,7 @@ export function GlobalFilter({
                 }
             >
                 <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Time period" />
+                    <SelectValue placeholder={t.time.custom} />
                 </SelectTrigger>
                 <SelectContent>
                     {PRESETS.map((preset) => (
@@ -88,7 +108,7 @@ export function GlobalFilter({
             <DateRangePicker
                 dateRange={filters.dateRange}
                 onDateRangeChange={setDateRange}
-                placeholder="Select date range"
+                placeholder={t.time.custom}
                 className="min-w-[240px]"
             />
 
@@ -101,10 +121,10 @@ export function GlobalFilter({
                     }
                 >
                     <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Category" />
+                        <SelectValue placeholder={t.expenses.category} />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="all">All Categories</SelectItem>
+                        <SelectItem value="all">{t.common.all}</SelectItem>
                         {Object.entries(categories).map(([key, label]) => (
                             <SelectItem key={key} value={key}>
                                 {label}
@@ -123,10 +143,10 @@ export function GlobalFilter({
                     }
                 >
                     <SelectTrigger className="w-[140px]">
-                        <SelectValue placeholder="Person" />
+                        <SelectValue placeholder={t.family.name} />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="all">All Members</SelectItem>
+                        <SelectItem value="all">{t.common.all}</SelectItem>
                         {members.map((member) => (
                             <SelectItem key={member.id} value={member.id}>
                                 {member.name}
@@ -145,7 +165,7 @@ export function GlobalFilter({
                     className="text-muted-foreground hover:text-foreground"
                 >
                     <X className="mr-1 h-4 w-4" />
-                    Reset
+                    {t.common.reset}
                 </Button>
             )}
         </div>
