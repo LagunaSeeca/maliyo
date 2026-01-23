@@ -140,6 +140,17 @@ export interface Translations {
             insurance: string;
             subscriptions: string;
             other: string;
+            petrol: string;
+            babyFood: string;
+            babyDiapers: string;
+            grocery: string;
+            utilityElectricity: string;
+            utilityGas: string;
+            utilityWater: string;
+            savings: string;
+            personalExpenses: string;
+            birthdaysWeddings: string;
+            onlineShopping: string;
         };
     };
 

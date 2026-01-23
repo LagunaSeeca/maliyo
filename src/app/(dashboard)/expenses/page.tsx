@@ -244,20 +244,20 @@ export default function ExpensesPage() {
         }
     }
 
-    // Expense categories
+    // Expense categories - must match Prisma ExpenseCategory enum
     const expenseCategories = [
         { key: 'TRANSPORT', label: t.expenses.categories.transport },
-        { key: 'FOOD', label: t.expenses.categories.food },
-        { key: 'UTILITIES', label: t.expenses.categories.utilities },
-        { key: 'HEALTH', label: t.expenses.categories.health },
-        { key: 'ENTERTAINMENT', label: t.expenses.categories.entertainment },
-        { key: 'SHOPPING', label: t.expenses.categories.shopping },
-        { key: 'EDUCATION', label: t.expenses.categories.education },
-        { key: 'TRAVEL', label: t.expenses.categories.travel },
-        { key: 'RENT', label: t.expenses.categories.rent },
-        { key: 'INSURANCE', label: t.expenses.categories.insurance },
-        { key: 'SUBSCRIPTIONS', label: t.expenses.categories.subscriptions },
-        { key: 'OTHER', label: t.expenses.categories.other },
+        { key: 'PETROL', label: t.expenses.categories.petrol },
+        { key: 'BABY_FOOD', label: t.expenses.categories.babyFood },
+        { key: 'BABY_DIAPERS', label: t.expenses.categories.babyDiapers },
+        { key: 'GROCERY', label: t.expenses.categories.grocery },
+        { key: 'UTILITY_ELECTRICITY', label: t.expenses.categories.utilityElectricity },
+        { key: 'UTILITY_GAS', label: t.expenses.categories.utilityGas },
+        { key: 'UTILITY_WATER', label: t.expenses.categories.utilityWater },
+        { key: 'SAVINGS', label: t.expenses.categories.savings },
+        { key: 'PERSONAL_EXPENSES', label: t.expenses.categories.personalExpenses },
+        { key: 'BIRTHDAYS_WEDDINGS', label: t.expenses.categories.birthdaysWeddings },
+        { key: 'ONLINE_SHOPPING', label: t.expenses.categories.onlineShopping },
         { key: 'LOAN_PAYMENT', label: t.loans.title },
     ]
 

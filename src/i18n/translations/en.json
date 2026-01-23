@@ -126,7 +126,18 @@
             "rent": "Rent",
             "insurance": "Insurance",
             "subscriptions": "Subscriptions",
-            "other": "Other"
+            "other": "Other",
+            "petrol": "Petrol",
+            "babyFood": "Baby Food",
+            "babyDiapers": "Baby Diapers",
+            "grocery": "Grocery",
+            "utilityElectricity": "Electricity",
+            "utilityGas": "Gas",
+            "utilityWater": "Water",
+            "savings": "Savings",
+            "personalExpenses": "Personal Expenses",
+            "birthdaysWeddings": "Birthdays & Weddings",
+            "onlineShopping": "Online Shopping"
         }
     },
     "loans": {

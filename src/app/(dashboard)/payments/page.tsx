@@ -157,13 +157,13 @@ export default function PaymentsPage() {
         }
     }
 
-    // Expense categories for select
+    // Expense categories for select - must match Prisma ExpenseCategory enum
     const expenseCategories = [
-        { key: 'UTILITIES', label: t.expenses.categories.utilities },
-        { key: 'SUBSCRIPTIONS', label: t.expenses.categories.subscriptions },
-        { key: 'RENT', label: t.expenses.categories.rent },
-        { key: 'INSURANCE', label: t.expenses.categories.insurance },
-        { key: 'OTHER', label: t.expenses.categories.other },
+        { key: 'UTILITY_ELECTRICITY', label: t.expenses.categories.utilityElectricity },
+        { key: 'UTILITY_GAS', label: t.expenses.categories.utilityGas },
+        { key: 'UTILITY_WATER', label: t.expenses.categories.utilityWater },
+        { key: 'SAVINGS', label: t.expenses.categories.savings },
+        { key: 'PERSONAL_EXPENSES', label: t.expenses.categories.personalExpenses },
     ]
 
     return (

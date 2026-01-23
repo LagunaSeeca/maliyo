@@ -126,7 +126,18 @@
             "rent": "Kirayə",
             "insurance": "Sığorta",
             "subscriptions": "Abunəliklər",
-            "other": "Digər"
+            "other": "Digər",
+            "petrol": "Benzin",
+            "babyFood": "Uşaq qidası",
+            "babyDiapers": "Uşaq bezi",
+            "grocery": "Ərzaq",
+            "utilityElectricity": "Elektrik",
+            "utilityGas": "Qaz",
+            "utilityWater": "Su",
+            "savings": "Əmanət",
+            "personalExpenses": "Şəxsi xərclər",
+            "birthdaysWeddings": "Ad günləri və toylar",
+            "onlineShopping": "Onlayn alış-veriş"
         }
     },
     "loans": {

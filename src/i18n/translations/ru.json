@@ -126,7 +126,18 @@
             "rent": "Аренда",
             "insurance": "Страхование",
             "subscriptions": "Подписки",
-            "other": "Другое"
+            "other": "Другое",
+            "petrol": "Бензин",
+            "babyFood": "Детское питание",
+            "babyDiapers": "Детские подгузники",
+            "grocery": "Продукты",
+            "utilityElectricity": "Электричество",
+            "utilityGas": "Газ",
+            "utilityWater": "Вода",
+            "savings": "Накопления",
+            "personalExpenses": "Личные расходы",
+            "birthdaysWeddings": "Дни рождения и свадьбы",
+            "onlineShopping": "Онлайн покупки"
         }
     },
     "loans": {
