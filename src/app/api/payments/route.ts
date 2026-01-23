@@ -55,11 +55,22 @@ export async function POST(request: Request) {
             )
         }
 
+        // Validate parsed numbers
+        const parsedAmount = parseFloat(amount)
+        const parsedDay = parseInt(dayOfMonth)
+
+        if (isNaN(parsedAmount) || isNaN(parsedDay)) {
+            return NextResponse.json(
+                { error: "Invalid amount or day of month" },
+                { status: 400 }
+            )
+        }
+
         const payment = await prisma.monthlyPayment.create({
             data: {
                 name,
-                amount: parseFloat(amount),
-                dayOfMonth: parseInt(dayOfMonth),
+                amount: parsedAmount,
+                dayOfMonth: parsedDay,
                 category,
                 familyId: family.id,
             },

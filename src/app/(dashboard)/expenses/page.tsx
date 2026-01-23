@@ -425,11 +425,24 @@ export default function ExpensesPage() {
 
                         <div className="space-y-2">
                             <Label>{t.family.name}</Label>
-                            <Input
-                                value={currentUser?.name || ""}
-                                disabled
-                                className="bg-muted"
-                            />
+                            <Select
+                                value={formData.personId}
+                                onValueChange={(value) =>
+                                    setFormData({ ...formData, personId: value })
+                                }
+                                required
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder={t.family.name} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {members.map((member) => (
+                                        <SelectItem key={member.id} value={member.id}>
+                                            {member.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         <div className="space-y-2">
