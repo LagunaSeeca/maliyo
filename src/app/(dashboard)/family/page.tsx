@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select"
 import { getApiUrl } from "@/lib/api-config"
 import { useLanguage } from "@/components/providers/LanguageProvider"
+import { toast } from "sonner"
 
 interface Member {
     id: string
@@ -80,13 +81,24 @@ export default function FamilyPage() {
                 body: JSON.stringify(formData),
             })
 
+            const data = await res.json()
+
             if (res.ok) {
+                toast.success(t.success?.saved || "Member added successfully")
                 setIsDialogOpen(false)
                 setFormData({ name: "", role: "MEMBER", email: "", password: "" })
                 fetchMembers()
+            } else {
+                // Handle specific errors like email already exists (409)
+                if (res.status === 409) {
+                    toast.error(data.error || "User with this email already exists")
+                } else {
+                    toast.error(data.error || t.errors?.somethingWentWrong || "Failed to add member")
+                }
             }
         } catch (error) {
             console.error("Failed to create member:", error)
+            toast.error(t.errors?.somethingWentWrong || "Failed to add member")
         } finally {
             setIsSubmitting(false)
         }

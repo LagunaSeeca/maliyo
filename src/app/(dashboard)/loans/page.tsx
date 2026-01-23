@@ -36,6 +36,7 @@ import { DatePicker } from "@/components/ui/date-picker"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { getApiUrl } from "@/lib/api-config"
 import { useLanguage } from "@/components/providers/LanguageProvider"
+import { toast } from "sonner"
 
 interface Member {
     id: string
@@ -144,7 +145,10 @@ export default function LoansPage() {
                 }),
             })
 
+            const data = await res.json()
+
             if (res.ok) {
+                toast.success(t.success?.saved || "Loan created successfully")
                 setIsDialogOpen(false)
                 setFormData({
                     name: "",
@@ -157,9 +161,12 @@ export default function LoansPage() {
                     monthlyPayment: "",
                 })
                 fetchLoans()
+            } else {
+                toast.error(data.error || t.errors?.somethingWentWrong || "Failed to create loan")
             }
         } catch (error) {
             console.error("Failed to create loan:", error)
+            toast.error(t.errors?.somethingWentWrong || "Failed to create loan")
         } finally {
             setIsSubmitting(false)
         }

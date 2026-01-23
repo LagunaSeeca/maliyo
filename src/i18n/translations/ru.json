@@ -152,7 +152,14 @@
         "overdue": "Просрочено",
         "recordPayment": "Записать платёж",
         "paymentHistory": "История платежей",
-        "noLoans": "Нет займов"
+        "noLoans": "Нет займов",
+        "progress": "Прогресс",
+        "monthlyPayment": "Ежемесячный платеж",
+        "totalAmount": "Общая сумма",
+        "remainingBalance": "Остаток",
+        "nextPayment": "Следующий платеж",
+        "duration": "Срок",
+        "overdueRate": "Ставка просрочки"
     },
     "payments": {
         "title": "Платежи",
@@ -172,7 +179,8 @@
             "monthly": "Ежемесячно",
             "yearly": "Ежегодно"
         },
-        "noPayments": "Нет платежей"
+        "noPayments": "Нет платежей",
+        "day": "День"
     },
     "family": {
         "title": "Семья",
@@ -253,7 +261,8 @@
         "deleteTitle": "Подтвердите удаление",
         "logout": "Вы уверены, что хотите выйти?",
         "logoutTitle": "Подтвердите выход",
-        "unsavedChanges": "Есть несохранённые изменения"
+        "unsavedChanges": "Есть несохранённые изменения",
+        "title": "Подтверждение"
     },
     "time": {
         "today": "Сегодня",
@@ -265,7 +274,8 @@
         "lastMonth": "В прошлом месяце",
         "last3Months": "Последние 3 месяца",
         "lastYear": "В прошлом году",
-        "custom": "Произвольный"
+        "custom": "Произвольный",
+        "month": "Месяц"
     },
     "currency": {
         "azn": "AZN",

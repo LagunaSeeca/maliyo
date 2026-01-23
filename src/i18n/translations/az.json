@@ -152,7 +152,14 @@
         "overdue": "Gecikmiş",
         "recordPayment": "Ödəniş qeyd et",
         "paymentHistory": "Ödəniş tarixçəsi",
-        "noLoans": "Borc yoxdur"
+        "noLoans": "Borc yoxdur",
+        "progress": "Proqres",
+        "monthlyPayment": "Aylıq ödəniş",
+        "totalAmount": "Ümumi məbləğ",
+        "remainingBalance": "Qalıq balans",
+        "nextPayment": "Növbəti ödəniş",
+        "duration": "Müddət",
+        "overdueRate": "Gecikmə faizi"
     },
     "payments": {
         "title": "Ödənişlər",
@@ -172,7 +179,8 @@
             "monthly": "Aylıq",
             "yearly": "İllik"
         },
-        "noPayments": "Ödəniş yoxdur"
+        "noPayments": "Ödəniş yoxdur",
+        "day": "Gün"
     },
     "family": {
         "title": "Ailə",
@@ -253,7 +261,8 @@
         "deleteTitle": "Silməyi təsdiqlə",
         "logout": "Çıxış etmək istədiyinizə əminsiniz?",
         "logoutTitle": "Çıxışı təsdiqlə",
-        "unsavedChanges": "Yadda saxlanılmamış dəyişikliklər var"
+        "unsavedChanges": "Yadda saxlanılmamış dəyişikliklər var",
+        "title": "Təsdiq"
     },
     "time": {
         "today": "Bu gün",
@@ -265,7 +274,8 @@
         "lastMonth": "Keçən ay",
         "last3Months": "Son 3 ay",
         "lastYear": "Keçən il",
-        "custom": "Xüsusi"
+        "custom": "Xüsusi",
+        "month": "Ay"
     },
     "currency": {
         "azn": "AZN",

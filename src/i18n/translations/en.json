@@ -152,7 +152,14 @@
         "overdue": "Overdue",
         "recordPayment": "Record payment",
         "paymentHistory": "Payment history",
-        "noLoans": "No loans"
+        "noLoans": "No loans",
+        "progress": "Progress",
+        "monthlyPayment": "Monthly payment",
+        "totalAmount": "Total amount",
+        "remainingBalance": "Remaining balance",
+        "nextPayment": "Next payment",
+        "duration": "Duration",
+        "overdueRate": "Overdue rate"
     },
     "payments": {
         "title": "Payments",
@@ -172,7 +179,8 @@
             "monthly": "Monthly",
             "yearly": "Yearly"
         },
-        "noPayments": "No payments"
+        "noPayments": "No payments",
+        "day": "Day"
     },
     "family": {
         "title": "Family",
@@ -253,7 +261,8 @@
         "deleteTitle": "Confirm deletion",
         "logout": "Are you sure you want to log out?",
         "logoutTitle": "Confirm logout",
-        "unsavedChanges": "You have unsaved changes"
+        "unsavedChanges": "You have unsaved changes",
+        "title": "Confirmation"
     },
     "time": {
         "today": "Today",
@@ -265,7 +274,8 @@
         "lastMonth": "Last month",
         "last3Months": "Last 3 months",
         "lastYear": "Last year",
-        "custom": "Custom"
+        "custom": "Custom",
+        "month": "Month"
     },
     "currency": {
         "azn": "AZN",

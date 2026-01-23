@@ -58,7 +58,7 @@ export async function POST(request: Request) {
         const payment = await prisma.monthlyPayment.create({
             data: {
                 name,
-                amount,
+                amount: parseFloat(amount),
                 dayOfMonth: parseInt(dayOfMonth),
                 category,
                 familyId: family.id,

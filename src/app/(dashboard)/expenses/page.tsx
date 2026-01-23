@@ -35,10 +35,15 @@ import { GlobalFilter, useFilters } from "@/components/filters"
 import { formatCurrency, formatDate, formatDateTime, getExpenseCategoryLabel } from "@/lib/utils"
 import { getApiUrl } from "@/lib/api-config"
 import { useLanguage } from "@/components/providers/LanguageProvider"
+import { toast } from "sonner"
 
 interface Member {
     id: string
     name: string
+    user?: {
+        id: string
+        email: string
+    }
 }
 
 interface Loan {
@@ -63,12 +68,18 @@ interface Expense {
     }
 }
 
+interface CurrentUser {
+    memberId: string
+    name: string
+}
+
 export default function ExpensesPage() {
     const { filters } = useFilters()
     const { t } = useLanguage()
     const [expenses, setExpenses] = useState<Expense[]>([])
     const [members, setMembers] = useState<Member[]>([])
     const [loans, setLoans] = useState<Loan[]>([])
+    const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null)
     const [total, setTotal] = useState(0)
     const [isLoading, setIsLoading] = useState(true)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -114,10 +125,31 @@ export default function ExpensesPage() {
 
     const fetchMembers = async () => {
         try {
+            // Fetch current user profile first
+            const profileRes = await fetch(getApiUrl("/api/user/profile"))
+            let currentUserEmail = ""
+            if (profileRes.ok) {
+                const profileData = await profileRes.json()
+                currentUserEmail = profileData.user?.email || ""
+            }
+
             const res = await fetch(getApiUrl("/api/family/members"))
             if (res.ok) {
                 const data = await res.json()
                 setMembers(data)
+
+                // Find current user's family member
+                if (currentUserEmail) {
+                    const currentMember = data.find((m: Member) => m.user?.email === currentUserEmail)
+                    if (currentMember) {
+                        setCurrentUser({
+                            memberId: currentMember.id,
+                            name: currentMember.name,
+                        })
+                        // Auto-set personId in form
+                        setFormData(prev => ({ ...prev, personId: currentMember.id }))
+                    }
+                }
             }
         } catch (error) {
             console.error("Failed to fetch members:", error)
@@ -145,8 +177,21 @@ export default function ExpensesPage() {
         fetchExpenses()
     }, [fetchExpenses])
 
+    // Auto-set personId when dialog opens
+    useEffect(() => {
+        if (isDialogOpen && currentUser) {
+            setFormData(prev => ({ ...prev, personId: currentUser.memberId }))
+        }
+    }, [isDialogOpen, currentUser])
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        if (!formData.personId) {
+            toast.error(t.errors?.somethingWentWrong || "User not found")
+            return
+        }
+
         setIsSubmitting(true)
 
         try {
@@ -161,20 +206,26 @@ export default function ExpensesPage() {
                 }),
             })
 
+            const data = await res.json()
+
             if (res.ok) {
+                toast.success(t.success?.saved || "Expense added successfully")
                 setIsDialogOpen(false)
                 setFormData({
                     amount: "",
                     category: "",
-                    personId: "",
+                    personId: currentUser?.memberId || "",
                     date: new Date(),
                     note: "",
                     loanId: "",
                 })
                 fetchExpenses()
+            } else {
+                toast.error(data.error || t.errors?.somethingWentWrong || "Failed to add expense")
             }
         } catch (error) {
             console.error("Failed to create expense:", error)
+            toast.error(t.errors?.somethingWentWrong || "Failed to add expense")
         } finally {
             setIsSubmitting(false)
         }
@@ -374,24 +425,11 @@ export default function ExpensesPage() {
 
                         <div className="space-y-2">
                             <Label>{t.family.name}</Label>
-                            <Select
-                                value={formData.personId}
-                                onValueChange={(value) =>
-                                    setFormData({ ...formData, personId: value })
-                                }
-                                required
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder={t.family.name} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {members.map((member) => (
-                                        <SelectItem key={member.id} value={member.id}>
-                                            {member.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <Input
+                                value={currentUser?.name || ""}
+                                disabled
+                                className="bg-muted"
+                            />
                         </div>
 
                         <div className="space-y-2">

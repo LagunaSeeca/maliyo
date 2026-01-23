@@ -168,6 +168,13 @@ export interface Translations {
         recordPayment: string;
         paymentHistory: string;
         noLoans: string;
+        progress: string;
+        monthlyPayment: string;
+        totalAmount: string;
+        remainingBalance: string;
+        nextPayment: string;
+        duration: string;
+        overdueRate: string;
     };
 
     // Payments
@@ -190,6 +197,7 @@ export interface Translations {
             yearly: string;
         };
         noPayments: string;
+        day: string;
     };
 
     // Family
@@ -283,6 +291,7 @@ export interface Translations {
         logout: string;
         logoutTitle: string;
         unsavedChanges: string;
+        title: string;
     };
 
     // Time/Date
@@ -297,6 +306,7 @@ export interface Translations {
         last3Months: string;
         lastYear: string;
         custom: string;
+        month: string;
     };
 
     // Currency
