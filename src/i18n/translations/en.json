@@ -223,7 +223,20 @@
         "themes": {
             "light": "Light",
             "dark": "Dark",
-            "system": "System"
+            "system": "System",
+            "custom": "Custom"
+        },
+        "customTheme": {
+            "title": "Custom Colors",
+            "description": "Personalize your theme with custom colors",
+            "backgroundColor": "Background",
+            "primaryColor": "Primary",
+            "secondaryColor": "Secondary",
+            "accentColor": "Accent",
+            "textColor": "Text",
+            "resetColors": "Reset",
+            "applyColors": "Apply",
+            "preview": "Preview"
         },
         "fullName": "Full name",
         "email": "Email",

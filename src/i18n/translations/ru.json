@@ -223,7 +223,20 @@
         "themes": {
             "light": "Светлая",
             "dark": "Тёмная",
-            "system": "Системная"
+            "system": "Системная",
+            "custom": "Своя"
+        },
+        "customTheme": {
+            "title": "Свои цвета",
+            "description": "Настройте тему с помощью своих цветов",
+            "backgroundColor": "Фон",
+            "primaryColor": "Основной",
+            "secondaryColor": "Второй",
+            "accentColor": "Акцент",
+            "textColor": "Текст",
+            "resetColors": "Сбросить",
+            "applyColors": "Применить",
+            "preview": "Предпросмотр"
         },
         "fullName": "Полное имя",
         "email": "Эл. почта",

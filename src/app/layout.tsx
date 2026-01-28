@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { CustomThemeProvider } from "@/components/providers/CustomThemeProvider";
 import { LanguageProvider } from "@/components/providers/LanguageProvider";
 import { Toaster } from "sonner";
 
@@ -41,13 +42,17 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
+          themes={["light", "dark", "system", "custom"]}
         >
-          <LanguageProvider>
-            {children}
-            <Toaster />
-          </LanguageProvider>
+          <CustomThemeProvider>
+            <LanguageProvider>
+              {children}
+              <Toaster />
+            </LanguageProvider>
+          </CustomThemeProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
+

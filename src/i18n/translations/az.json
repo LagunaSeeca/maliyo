@@ -223,7 +223,20 @@
         "themes": {
             "light": "İşıqlı",
             "dark": "Qaranlıq",
-            "system": "Sistem"
+            "system": "Sistem",
+            "custom": "Xüsusi"
+        },
+        "customTheme": {
+            "title": "Xüsusi Rənglər",
+            "description": "Temanızı xüsusi rənglərlə fərdiləşdirin",
+            "backgroundColor": "Arxa fon",
+            "primaryColor": "Əsas",
+            "secondaryColor": "İkincil",
+            "accentColor": "Vurğu",
+            "textColor": "Mətn",
+            "resetColors": "Sıfırla",
+            "applyColors": "Tətbiq et",
+            "preview": "Önizləmə"
         },
         "fullName": "Ad və soyad",
         "email": "E-poçt",

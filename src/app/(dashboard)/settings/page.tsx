@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { Settings as SettingsIcon, User, Bell, Lock, Palette, Moon, Sun, Laptop } from "lucide-react"
+import { Settings as SettingsIcon, User, Bell, Lock, Palette, Moon, Sun, Laptop, Sparkles } from "lucide-react"
 import { useTheme } from "next-themes"
 import { DashboardLayout } from "@/components/layout"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -15,6 +15,7 @@ import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import { getApiUrl } from "@/lib/api-config"
 import { useLanguage } from "@/components/providers/LanguageProvider"
+import { CustomThemeDialog } from "@/components/ui/custom-theme-dialog"
 
 export default function SettingsPage() {
     const { theme, setTheme } = useTheme()
@@ -22,6 +23,7 @@ export default function SettingsPage() {
     const [mounted, setMounted] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
+    const [customDialogOpen, setCustomDialogOpen] = useState(false)
     const [userProfile, setUserProfile] = useState({
         name: "",
         email: ""
@@ -94,6 +96,14 @@ export default function SettingsPage() {
         setNotifications(newSettings)
         localStorage.setItem("notification-settings", JSON.stringify(newSettings))
         toast.success(t.success.saved)
+    }
+
+    const handleThemeChange = (value: string) => {
+        if (value === "custom") {
+            setCustomDialogOpen(true)
+        } else {
+            setTheme(value)
+        }
     }
 
     if (!mounted) {
@@ -181,19 +191,23 @@ export default function SettingsPage() {
                         <CardContent className="space-y-6">
                             <div className="space-y-3">
                                 <Label>{t.settings.theme}</Label>
-                                <Tabs value={theme} onValueChange={setTheme} className="w-full">
-                                    <TabsList className="grid w-full grid-cols-3">
-                                        <TabsTrigger value="light" className="flex items-center gap-2">
-                                            <Sun className="h-4 w-4" />
-                                            {t.settings.themes.light}
+                                <Tabs value={theme} onValueChange={handleThemeChange} className="w-full">
+                                    <TabsList className="grid w-full grid-cols-4">
+                                        <TabsTrigger value="light" className="flex items-center gap-1 text-xs sm:text-sm sm:gap-2">
+                                            <Sun className="h-3 w-3 sm:h-4 sm:w-4" />
+                                            <span className="hidden sm:inline">{t.settings.themes.light}</span>
                                         </TabsTrigger>
-                                        <TabsTrigger value="dark" className="flex items-center gap-2">
-                                            <Moon className="h-4 w-4" />
-                                            {t.settings.themes.dark}
+                                        <TabsTrigger value="dark" className="flex items-center gap-1 text-xs sm:text-sm sm:gap-2">
+                                            <Moon className="h-3 w-3 sm:h-4 sm:w-4" />
+                                            <span className="hidden sm:inline">{t.settings.themes.dark}</span>
                                         </TabsTrigger>
-                                        <TabsTrigger value="system" className="flex items-center gap-2">
-                                            <Laptop className="h-4 w-4" />
-                                            {t.settings.themes.system}
+                                        <TabsTrigger value="system" className="flex items-center gap-1 text-xs sm:text-sm sm:gap-2">
+                                            <Laptop className="h-3 w-3 sm:h-4 sm:w-4" />
+                                            <span className="hidden sm:inline">{t.settings.themes.system}</span>
+                                        </TabsTrigger>
+                                        <TabsTrigger value="custom" className="flex items-center gap-1 text-xs sm:text-sm sm:gap-2">
+                                            <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />
+                                            <span className="hidden sm:inline">{t.settings.themes.custom}</span>
                                         </TabsTrigger>
                                     </TabsList>
                                 </Tabs>
@@ -208,6 +222,12 @@ export default function SettingsPage() {
                         </CardContent>
                     </Card>
                 </motion.div>
+
+                {/* Custom Theme Dialog */}
+                <CustomThemeDialog
+                    open={customDialogOpen}
+                    onOpenChange={setCustomDialogOpen}
+                />
 
                 {/* Notification Settings */}
                 <motion.div

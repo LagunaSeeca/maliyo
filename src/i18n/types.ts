@@ -245,6 +245,19 @@ export interface Translations {
             light: string;
             dark: string;
             system: string;
+            custom: string;
+        };
+        customTheme: {
+            title: string;
+            description: string;
+            backgroundColor: string;
+            primaryColor: string;
+            secondaryColor: string;
+            accentColor: string;
+            textColor: string;
+            resetColors: string;
+            applyColors: string;
+            preview: string;
         };
         fullName: string;
         email: string;
