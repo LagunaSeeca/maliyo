@@ -77,6 +77,8 @@ export interface Translations {
         totalIncome: string;
         totalExpenses: string;
         netSavings: string;
+        budgetLeft: string;
+        savings: string;
         loanBalance: string;
         quickActions: string;
         addIncome: string;

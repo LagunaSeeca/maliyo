@@ -52,6 +52,7 @@ interface DashboardStats {
     totalIncome: number
     totalExpenses: number
     netSavings: number
+    budgetLeft: number
     expensesByCategory: Array<{ category: string; amount: number }>
     recentTransactions: Array<{
         id: string
@@ -116,8 +117,8 @@ function DashboardContent() {
         fetchStats()
     }, [filters.dateRange])
 
-    const netBalance = (stats?.totalIncome || 0) - (stats?.totalExpenses || 0)
-    const isPositiveBalance = netBalance >= 0
+    const budgetLeft = stats?.budgetLeft || 0
+    const isPositiveBudget = budgetLeft >= 0
 
     const kpiCards = [
         {
@@ -137,15 +138,15 @@ function DashboardContent() {
             textColor: "text-red-600 dark:text-red-400",
         },
         {
-            title: t.dashboard.netSavings,
-            value: netBalance,
+            title: t.dashboard.budgetLeft,
+            value: budgetLeft,
             icon: Wallet,
-            color: isPositiveBalance ? "from-blue-500 to-cyan-500" : "from-orange-500 to-red-500",
-            bgColor: isPositiveBalance ? "bg-blue-500/10" : "bg-orange-500/10",
-            textColor: isPositiveBalance ? "text-blue-600 dark:text-blue-400" : "text-orange-600 dark:text-orange-400",
+            color: isPositiveBudget ? "from-blue-500 to-cyan-500" : "from-orange-500 to-red-500",
+            bgColor: isPositiveBudget ? "bg-blue-500/10" : "bg-orange-500/10",
+            textColor: isPositiveBudget ? "text-blue-600 dark:text-blue-400" : "text-orange-600 dark:text-orange-400",
         },
         {
-            title: t.dashboard.netSavings,
+            title: t.dashboard.savings,
             value: stats?.netSavings || 0,
             icon: PiggyBank,
             color: "from-violet-500 to-indigo-500",

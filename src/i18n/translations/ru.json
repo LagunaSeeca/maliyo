@@ -68,6 +68,8 @@
         "totalIncome": "Общий доход",
         "totalExpenses": "Общие расходы",
         "netSavings": "Чистые сбережения",
+        "budgetLeft": "Остаток бюджета",
+        "savings": "Сбережения",
         "loanBalance": "Баланс займов",
         "quickActions": "Быстрые действия",
         "addIncome": "Добавить доход",

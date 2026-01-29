@@ -68,6 +68,8 @@
         "totalIncome": "Total Income",
         "totalExpenses": "Total Expenses",
         "netSavings": "Net Savings",
+        "budgetLeft": "Budget Left",
+        "savings": "Savings",
         "loanBalance": "Loan Balance",
         "quickActions": "Quick Actions",
         "addIncome": "Add Income",

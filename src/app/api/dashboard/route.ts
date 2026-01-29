@@ -45,13 +45,13 @@ export async function GET(request: Request) {
                 },
                 _sum: { amount: true },
             }),
-            // Total Expense
+            // Total Expense (excluding SAVINGS - savings should not count as expenses)
             prisma.expense.aggregate({
                 where: {
                     familyId: family.id,
+                    category: { not: "SAVINGS" },
                     ...(dateFilter && { date: dateFilter }),
                     ...(personId && { personId }),
-                    ...(category && { category: category as any }),
                 },
                 _sum: { amount: true },
             }),
@@ -154,10 +154,14 @@ export async function GET(request: Request) {
             amount: Number(item._sum.amount || 0),
         }))
 
+        // Budget Left = Income - Expenses (savings already excluded from expenses)
+        const budgetLeft = totalIncome - totalExpenses
+
         return NextResponse.json({
             totalIncome,
             totalExpenses,
             netSavings,
+            budgetLeft,
             loanBalance: totalLoanBalance,
             recentTransactions: transactions,
             monthlyPayments,
