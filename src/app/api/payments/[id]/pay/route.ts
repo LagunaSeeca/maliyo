@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getCurrentFamily, getCurrentUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { startOfMonth, endOfMonth } from "date-fns"
 
 export async function POST(
     request: Request,
@@ -29,13 +30,26 @@ export async function POST(
             )
         }
 
+        // Server-side duplicate prevention: Check if already paid this month
+        const now = new Date()
+        if (payment.lastPaidDate) {
+            const lastPaidMonth = startOfMonth(new Date(payment.lastPaidDate))
+            const currentMonth = startOfMonth(now)
+            if (lastPaidMonth.getTime() === currentMonth.getTime()) {
+                return NextResponse.json(
+                    { error: "Payment already processed this month" },
+                    { status: 409 } // Conflict
+                )
+            }
+        }
+
         // Create expense record
         const expense = await prisma.expense.create({
             data: {
                 amount: payment.amount,
                 category: payment.category,
                 note: `Monthly Payment: ${payment.name}`,
-                date: new Date(),
+                date: now,
                 personId: user.familyMember!.id,
                 familyId: family.id,
                 loanId: payment.loanId, // Link expense to loan if applicable
@@ -46,7 +60,7 @@ export async function POST(
         await prisma.monthlyPayment.update({
             where: { id },
             data: {
-                lastPaidDate: new Date(),
+                lastPaidDate: now,
             },
         })
 
@@ -56,7 +70,7 @@ export async function POST(
                 data: {
                     loanId: payment.loanId,
                     amount: payment.amount,
-                    paymentDate: new Date(),
+                    paymentDate: now,
                 },
             })
         }
