@@ -135,25 +135,44 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        const loan = await prisma.loan.create({
-            data: {
-                name,
-                ownerId,
-                totalAmount,
-                startDate: new Date(startDate),
-                durationMonths,
-                interestRate,
-                overdueRate,
-                monthlyPayment,
-                familyId: session.familyId,
-            },
-            include: {
-                owner: {
-                    select: {
-                        id: true,
-                        name: true,
+        // Create loan and associated monthly payment in a transaction
+        const startDateObj = new Date(startDate)
+        const dayOfMonth = startDateObj.getDate()
+
+        const [loan] = await prisma.$transaction([
+            prisma.loan.create({
+                data: {
+                    name,
+                    ownerId,
+                    totalAmount,
+                    startDate: startDateObj,
+                    durationMonths,
+                    interestRate,
+                    overdueRate,
+                    monthlyPayment,
+                    familyId: session.familyId,
+                },
+                include: {
+                    owner: {
+                        select: {
+                            id: true,
+                            name: true,
+                        },
                     },
                 },
+            }),
+        ])
+
+        // Create associated monthly payment for the loan
+        await prisma.monthlyPayment.create({
+            data: {
+                name: `Loan: ${name}`,
+                amount: monthlyPayment,
+                dayOfMonth,
+                category: "LOAN_PAYMENT",
+                familyId: session.familyId,
+                loanId: loan.id,
+                isActive: true,
             },
         })
 

@@ -301,7 +301,8 @@
         "last3Months": "Последние 3 месяца",
         "lastYear": "В прошлом году",
         "custom": "Произвольный",
-        "month": "Месяц"
+        "month": "Месяц",
+        "allTime": "Всё время"
     },
     "currency": {
         "azn": "AZN",

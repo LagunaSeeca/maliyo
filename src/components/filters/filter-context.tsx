@@ -8,7 +8,7 @@ interface FilterState {
     dateRange: DateRange | undefined
     category: string | null
     personId: string | null
-    preset: "this_month" | "last_month" | "last_3_months" | "custom"
+    preset: "all_time" | "this_month" | "last_month" | "last_3_months" | "custom"
 }
 
 interface FilterContextType {
@@ -20,19 +20,14 @@ interface FilterContextType {
     resetFilters: () => void
 }
 
-const getInitialDateRange = (): DateRange => ({
-    from: startOfMonth(new Date()),
-    to: endOfMonth(new Date()),
-})
-
 const FilterContext = createContext<FilterContextType | undefined>(undefined)
 
 export function FilterProvider({ children }: { children: React.ReactNode }) {
     const [filters, setFilters] = useState<FilterState>({
-        dateRange: getInitialDateRange(),
+        dateRange: undefined, // undefined means all time - no date filtering
         category: null,
         personId: null,
-        preset: "this_month",
+        preset: "all_time",
     })
 
     const setDateRange = useCallback((range: DateRange | undefined) => {
@@ -55,6 +50,9 @@ export function FilterProvider({ children }: { children: React.ReactNode }) {
         let dateRange: DateRange | undefined
 
         switch (preset) {
+            case "all_time":
+                dateRange = undefined
+                break
             case "this_month":
                 dateRange = {
                     from: startOfMonth(new Date()),
@@ -84,10 +82,10 @@ export function FilterProvider({ children }: { children: React.ReactNode }) {
 
     const resetFilters = useCallback(() => {
         setFilters({
-            dateRange: getInitialDateRange(),
+            dateRange: undefined,
             category: null,
             personId: null,
-            preset: "this_month",
+            preset: "all_time",
         })
     }, [])
 

@@ -51,6 +51,7 @@ export function GlobalFilter({
     const { t } = useLanguage()
 
     const PRESETS = [
+        { value: "all_time", label: t.time.allTime || "All Time" },
         { value: "this_month", label: t.time.thisMonth },
         { value: "last_month", label: t.time.lastMonth },
         { value: "last_3_months", label: t.time.last3Months },

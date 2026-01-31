@@ -164,9 +164,10 @@ function DashboardContent() {
     ].filter(Boolean)
 
     const presets = [
+        { label: t.time.allTime || "All Time", value: "all_time" as const },
         { label: t.dashboard.thisMonth, value: "this_month" as const },
         { label: t.time.lastMonth, value: "last_month" as const },
-        { label: t.time.custom, value: "last_3_months" as const },
+        { label: t.time.last3Months, value: "last_3_months" as const },
     ]
 
     return (

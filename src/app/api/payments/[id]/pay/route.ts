@@ -29,25 +29,37 @@ export async function POST(
             )
         }
 
-        // Transaction to create expense and update payment status
-        const [expense] = await prisma.$transaction([
-            prisma.expense.create({
+        // Create expense record
+        const expense = await prisma.expense.create({
+            data: {
+                amount: payment.amount,
+                category: payment.category,
+                note: `Monthly Payment: ${payment.name}`,
+                date: new Date(),
+                personId: user.familyMember!.id,
+                familyId: family.id,
+                loanId: payment.loanId, // Link expense to loan if applicable
+            },
+        })
+
+        // Update the monthly payment's last paid date
+        await prisma.monthlyPayment.update({
+            where: { id },
+            data: {
+                lastPaidDate: new Date(),
+            },
+        })
+
+        // If this is a loan payment, also create a LoanPayment record
+        if (payment.loanId) {
+            await prisma.loanPayment.create({
                 data: {
+                    loanId: payment.loanId,
                     amount: payment.amount,
-                    category: payment.category,
-                    note: `Monthly Payment: ${payment.name}`,
-                    date: new Date(),
-                    personId: user.familyMember!.id,
-                    familyId: family.id,
+                    paymentDate: new Date(),
                 },
-            }),
-            prisma.monthlyPayment.update({
-                where: { id },
-                data: {
-                    lastPaidDate: new Date(),
-                },
-            }),
-        ])
+            })
+        }
 
         return NextResponse.json({ success: true, expense })
 

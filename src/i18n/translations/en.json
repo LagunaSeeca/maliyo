@@ -301,7 +301,8 @@
         "last3Months": "Last 3 months",
         "lastYear": "Last year",
         "custom": "Custom",
-        "month": "Month"
+        "month": "Month",
+        "allTime": "All Time"
     },
     "currency": {
         "azn": "AZN",

@@ -333,6 +333,7 @@ export interface Translations {
         lastYear: string;
         custom: string;
         month: string;
+        allTime: string;
     };
 
     // Currency

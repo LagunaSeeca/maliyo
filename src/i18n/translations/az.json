@@ -301,7 +301,8 @@
         "last3Months": "Son 3 ay",
         "lastYear": "Keçən il",
         "custom": "Xüsusi",
-        "month": "Ay"
+        "month": "Ay",
+        "allTime": "Bütün vaxt"
     },
     "currency": {
         "azn": "AZN",
