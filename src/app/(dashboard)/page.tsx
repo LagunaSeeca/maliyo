@@ -70,6 +70,7 @@ function DashboardContent() {
     const { filters, setDateRange, setPreset } = useFilters()
     const [stats, setStats] = useState<DashboardStats | null>(null)
     const [isLoading, setIsLoading] = useState(true)
+    const [payingId, setPayingId] = useState<string | null>(null)
     const { t } = useLanguage()
 
     const fetchStats = async () => {
@@ -96,6 +97,8 @@ function DashboardContent() {
     }
 
     const handlePay = async (paymentId: string) => {
+        if (payingId) return // Prevent multiple clicks
+        setPayingId(paymentId)
         try {
             const res = await fetch(getApiUrl(`/api/payments/${paymentId}/pay`), {
                 method: "POST",
@@ -110,6 +113,8 @@ function DashboardContent() {
         } catch (error) {
             console.error(error)
             toast.error(t.errors.somethingWentWrong)
+        } finally {
+            setPayingId(null)
         }
     }
 
@@ -311,8 +316,9 @@ function DashboardContent() {
                                                             size="sm"
                                                             className="bg-violet-600 hover:bg-violet-700 text-white flex-shrink-0"
                                                             onClick={() => handlePay(payment.id)}
+                                                            disabled={payingId === payment.id}
                                                         >
-                                                            {t.dashboard.markAsPaid}
+                                                            {payingId === payment.id ? t.common.loading : t.dashboard.markAsPaid}
                                                         </Button>
                                                     )}
                                                     {isPaid && (
