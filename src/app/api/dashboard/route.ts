@@ -25,18 +25,23 @@ export async function GET(request: Request) {
             lte: new Date(endDate),
         } : undefined
 
-        // Parallelize independent queries
-        const [
-            incomeAgg,
-            expenseAgg,
-            recentIncomes,
-            recentExpenses,
-            monthlyPayments,
-            loans,
-            savingsAgg
-        ] = await Promise.all([
+        const errors: any[] = []
+
+        // Helper for safe query execution
+        const safeQuery = async <T>(name: string, promise: Promise<T>, fallback: T): Promise<T> => {
+            try {
+                return await promise
+            } catch (e: any) {
+                console.error(`Query failed: ${name}`, e)
+                errors.push({ query: name, error: e.message || String(e) })
+                return fallback
+            }
+        }
+
+        // Execute queries safely
+        const [incomeAgg, expenseAgg, recentIncomes, recentExpenses, monthlyPayments, loans, savingsAgg] = await Promise.all([
             // Total Income
-            prisma.income.aggregate({
+            safeQuery('incomeAgg', prisma.income.aggregate({
                 where: {
                     familyId: family.id,
                     ...(dateFilter && { date: dateFilter }),
@@ -44,9 +49,10 @@ export async function GET(request: Request) {
                     ...(category && { category: category as any }),
                 },
                 _sum: { amount: true },
-            }),
-            // Total Expense (excluding SAVINGS - savings should not count as expenses)
-            prisma.expense.aggregate({
+            }), { _sum: { amount: null } }),
+
+            // Total Expense
+            safeQuery('expenseAgg', prisma.expense.aggregate({
                 where: {
                     familyId: family.id,
                     category: { not: "SAVINGS" },
@@ -54,23 +60,26 @@ export async function GET(request: Request) {
                     ...(personId && { personId }),
                 },
                 _sum: { amount: true },
-            }),
+            }), { _sum: { amount: null } }),
+
             // Recent Incomes
-            prisma.income.findMany({
+            safeQuery('recentIncomes', prisma.income.findMany({
                 where: { familyId: family.id },
                 include: { person: true },
                 orderBy: { date: "desc" },
                 take: 5,
-            }),
+            }), [] as any[]),
+
             // Recent Expenses
-            prisma.expense.findMany({
+            safeQuery('recentExpenses', prisma.expense.findMany({
                 where: { familyId: family.id },
                 include: { person: true },
                 orderBy: { date: "desc" },
                 take: 5,
-            }),
+            }), [] as any[]),
+
             // Active Monthly Payments
-            prisma.monthlyPayment.findMany({
+            safeQuery('monthlyPayments', prisma.monthlyPayment.findMany({
                 where: {
                     familyId: family.id,
                     isActive: true,
@@ -78,9 +87,10 @@ export async function GET(request: Request) {
                 orderBy: {
                     dayOfMonth: 'asc',
                 }
-            }),
-            // Active Loans for Balance Calculation
-            prisma.loan.findMany({
+            }), [] as any[]),
+
+            // Active Loans
+            safeQuery('loans', prisma.loan.findMany({
                 where: {
                     familyId: family.id,
                     isActive: true,
@@ -88,57 +98,66 @@ export async function GET(request: Request) {
                 include: {
                     payments: true,
                 }
-            }),
-            // Savings Expenses for KPI correction
-            prisma.expense.aggregate({
+            }), [] as any[]),
+
+            // Savings
+            safeQuery('savingsAgg', prisma.expense.aggregate({
                 where: {
                     familyId: family.id,
-                    category: "SAVINGS", // Make sure this matches the enum/string exactly
+                    category: "SAVINGS",
                     ...(dateFilter && { date: dateFilter }),
                     ...(personId && { personId }),
                 },
                 _sum: { amount: true },
-            }),
+            }), { _sum: { amount: null } }),
         ])
 
-        const totalIncome = Number(incomeAgg._sum.amount?.toString() || 0)
-        const totalExpenses = Number(expenseAgg._sum.amount?.toString() || 0)
-        const totalSavingsExpenses = Number(savingsAgg._sum.amount?.toString() || 0)
+        const totalIncome = Number(incomeAgg?._sum?.amount?.toString() || 0)
+        const totalExpenses = Number(expenseAgg?._sum?.amount?.toString() || 0)
+        const totalSavingsExpenses = Number(savingsAgg?._sum?.amount?.toString() || 0)
 
-        // Net Savings = Sum of expenses categorized as "SAVINGS"
-        // User requested strict definition: Income doesn't count, only explicit savings allocations count.
+        // Net Savings
         const netSavings = totalSavingsExpenses
 
-        // Calculate total loan balance
+        // Calculate total loan balance safely
         const totalLoanBalance = loans.reduce((acc, loan) => {
-            const totalPaid = loan.payments.reduce((sum, p) => sum + Number(p.amount.toString()), 0)
-            const balance = Number(loan.totalAmount.toString()) - totalPaid
-            return acc + (balance > 0 ? balance : 0)
+            try {
+                const totalPaid = (loan.payments || []).reduce((sum: number, p: any) => sum + Number(p.amount?.toString() || 0), 0)
+                const balance = Number(loan.totalAmount?.toString() || 0) - totalPaid
+                return acc + (balance > 0 ? balance : 0)
+            } catch (e) {
+                return acc
+            }
         }, 0)
 
-        // Combine and sort transactions
+        // Combine and sort transactions safely
         const transactions = [
             ...recentIncomes.map(i => ({
                 id: i.id,
                 type: 'income',
-                amount: Number(i.amount.toString()),
+                amount: Number(i.amount?.toString() || 0),
                 category: i.category,
-                person: i.person.name,
+                person: i.person?.name || 'Unknown',
                 date: i.date,
             })),
             ...recentExpenses.map(e => ({
                 id: e.id,
                 type: 'expense',
-                amount: Number(e.amount.toString()),
+                amount: Number(e.amount?.toString() || 0),
                 category: e.category,
-                person: e.person.name,
+                person: e.person?.name || 'Unknown',
                 date: e.date,
             }))
-        ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10)
+        ].sort((a, b) => {
+            try {
+                return new Date(b.date).getTime() - new Date(a.date).getTime()
+            } catch (e) {
+                return 0
+            }
+        }).slice(0, 10)
 
-        // Calculate expenses by category for charts (separate query if needed, or aggregate here)
-        // For efficiency, we might want a separate groupBy query
-        const expensesByCategoryRaw = await prisma.expense.groupBy({
+        // Calculate expenses by category
+        const expensesByCategoryRaw = await safeQuery('expensesByCategory', prisma.expense.groupBy({
             by: ['category'],
             where: {
                 familyId: family.id,
@@ -147,56 +166,51 @@ export async function GET(request: Request) {
             _sum: {
                 amount: true,
             },
-        })
+        }), [])
 
-        const expensesByCategory = expensesByCategoryRaw.map(item => ({
+        const expensesByCategory = expensesByCategoryRaw.map((item: any) => ({
             category: item.category,
-            amount: Number(item._sum.amount?.toString() || 0),
+            amount: Number(item._sum?.amount?.toString() || 0),
         }))
 
-        // Budget Left = Income - Expenses (savings already excluded from expenses)
         const budgetLeft = totalIncome - totalExpenses
 
-        // Process monthly payments to add due dates and filter by current month
+        // Process monthly payments
         const now = new Date()
         const currentYear = now.getFullYear()
-        const currentMonth = now.getMonth() // 0-indexed
-        const currentMonthStart = new Date(currentYear, currentMonth, 1)
+        const currentMonth = now.getMonth()
 
         const processedPayments = monthlyPayments.map(payment => {
-            // Calculate the due date for the current month
-            const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
-            const dueDay = Math.min(payment.dayOfMonth, lastDayOfMonth)
-            const dueDate = new Date(currentYear, currentMonth, dueDay)
-
-            // Check if this payment is paid for the current month
-            const lastPaid = payment.lastPaidDate ? new Date(payment.lastPaidDate) : null
-            const isPaidThisMonth = lastPaid &&
-                lastPaid.getMonth() === currentMonth &&
-                lastPaid.getFullYear() === currentYear
-
-            // Format payment month label (e.g., "February 2026")
-            let paymentMonth = ""
             try {
-                paymentMonth = dueDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-            } catch (e) {
-                paymentMonth = `${dueDate.getMonth() + 1}/${dueDate.getFullYear()}`
-            }
+                const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
+                const dueDay = Math.min(payment.dayOfMonth || 1, lastDayOfMonth) // Fallback due day
+                const dueDate = new Date(currentYear, currentMonth, dueDay)
 
-            return {
-                ...payment,
-                amount: payment.amount.toString(),
-                dueDate: dueDate.toISOString(),
-                paymentMonth,
-                isPaidThisMonth,
+                const lastPaid = payment.lastPaidDate ? new Date(payment.lastPaidDate) : null
+                const isPaidThisMonth = lastPaid &&
+                    lastPaid.getMonth() === currentMonth &&
+                    lastPaid.getFullYear() === currentYear
+
+                let paymentMonth = ""
+                try {
+                    paymentMonth = dueDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+                } catch (e) {
+                    paymentMonth = `${dueDate.getMonth() + 1}/${dueDate.getFullYear()}`
+                }
+
+                return {
+                    ...payment,
+                    amount: payment.amount?.toString() || "0",
+                    dueDate: dueDate.toISOString(),
+                    paymentMonth,
+                    isPaidThisMonth: !!isPaidThisMonth,
+                }
+            } catch (e) {
+                console.error("Error processing payment:", e)
+                return null
             }
-        }).filter(payment => {
-            // Show unpaid payments for current month
-            // Also show payments not paid from previous month (carry-over)
-            if (!payment.isPaidThisMonth) {
-                return true
-            }
-            // Hide payments already paid this month
+        }).filter(Boolean).filter((payment: any) => {
+            if (!payment.isPaidThisMonth) return true
             return false
         })
 
@@ -208,7 +222,8 @@ export async function GET(request: Request) {
             loanBalance: totalLoanBalance,
             recentTransactions: transactions,
             monthlyPayments: processedPayments,
-            expensesByCategory
+            expensesByCategory,
+            _debug: errors.length > 0 ? errors : undefined
         })
 
     } catch (error: any) {
