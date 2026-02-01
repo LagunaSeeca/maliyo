@@ -149,8 +149,11 @@ export interface Translations {
             utilityElectricity: string;
             utilityGas: string;
             utilityWater: string;
+            utilityInternet: string;
+            utilityPhone: string;
             savings: string;
             personalExpenses: string;
+            loanPayment: string;
             birthdaysWeddings: string;
             onlineShopping: string;
         };
@@ -211,6 +214,7 @@ export interface Translations {
         };
         noPayments: string;
         day: string;
+        paymentFor: string;
     };
 
     // Family

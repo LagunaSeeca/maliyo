@@ -158,12 +158,40 @@ export default function PaymentsPage() {
     }
 
     // Expense categories for select - must match Prisma ExpenseCategory enum
+    // Organized by category type for better UX
     const expenseCategories = [
+        // Utilities
         { key: 'UTILITY_ELECTRICITY', label: t.expenses.categories.utilityElectricity },
         { key: 'UTILITY_GAS', label: t.expenses.categories.utilityGas },
         { key: 'UTILITY_WATER', label: t.expenses.categories.utilityWater },
+        { key: 'UTILITY_INTERNET', label: t.expenses.categories.utilityInternet },
+        { key: 'UTILITY_PHONE', label: t.expenses.categories.utilityPhone },
+        // Housing
+        { key: 'RENT', label: t.expenses.categories.rent },
+        // Financial
         { key: 'SAVINGS', label: t.expenses.categories.savings },
         { key: 'PERSONAL_EXPENSES', label: t.expenses.categories.personalExpenses },
+        { key: 'LOAN_PAYMENT', label: t.expenses.categories.loanPayment },
+        { key: 'INSURANCE', label: t.expenses.categories.insurance },
+        // Lifestyle
+        { key: 'SUBSCRIPTIONS', label: t.expenses.categories.subscriptions },
+        { key: 'HEALTH', label: t.expenses.categories.health },
+        { key: 'EDUCATION', label: t.expenses.categories.education },
+        { key: 'ENTERTAINMENT', label: t.expenses.categories.entertainment },
+        // Transport
+        { key: 'TRANSPORT', label: t.expenses.categories.transport },
+        { key: 'PETROL', label: t.expenses.categories.petrol },
+        // Food
+        { key: 'FOOD', label: t.expenses.categories.food },
+        { key: 'GROCERY', label: t.expenses.categories.grocery },
+        // Baby
+        { key: 'BABY_FOOD', label: t.expenses.categories.babyFood },
+        { key: 'BABY_DIAPERS', label: t.expenses.categories.babyDiapers },
+        // Other
+        { key: 'TRAVEL', label: t.expenses.categories.travel },
+        { key: 'BIRTHDAYS_WEDDINGS', label: t.expenses.categories.birthdaysWeddings },
+        { key: 'ONLINE_SHOPPING', label: t.expenses.categories.onlineShopping },
+        { key: 'OTHER', label: t.expenses.categories.other },
     ]
 
     return (

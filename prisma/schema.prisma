@@ -176,19 +176,37 @@ enum IncomeCategory {
 }
 
 enum ExpenseCategory {
+  // Transport
   TRANSPORT
   PETROL
+  // Baby
   BABY_FOOD
   BABY_DIAPERS
+  // Food & Grocery
+  FOOD
   GROCERY
+  // Utilities
   UTILITY_ELECTRICITY
   UTILITY_GAS
   UTILITY_WATER
+  UTILITY_INTERNET
+  UTILITY_PHONE
+  // Housing
+  RENT
+  // Financial
   SAVINGS
   PERSONAL_EXPENSES
   LOAN_PAYMENT
+  INSURANCE
+  // Lifestyle
+  HEALTH
+  EDUCATION
+  ENTERTAINMENT
+  SUBSCRIPTIONS
+  TRAVEL
   BIRTHDAYS_WEDDINGS
   ONLINE_SHOPPING
+  OTHER
 }
 
 enum OtpType {

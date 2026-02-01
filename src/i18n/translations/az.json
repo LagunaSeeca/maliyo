@@ -136,8 +136,11 @@
             "utilityElectricity": "Elektrik",
             "utilityGas": "Qaz",
             "utilityWater": "Su",
+            "utilityInternet": "İnternet",
+            "utilityPhone": "Telefon",
             "savings": "Əmanət",
             "personalExpenses": "Şəxsi xərclər",
+            "loanPayment": "Kredit ödənişi",
             "birthdaysWeddings": "Ad günləri və toylar",
             "onlineShopping": "Onlayn alış-veriş"
         }
@@ -193,7 +196,8 @@
             "yearly": "İllik"
         },
         "noPayments": "Ödəniş yoxdur",
-        "day": "Gün"
+        "day": "Gün",
+        "paymentFor": "Ödəniş ayı"
     },
     "family": {
         "title": "Ailə",

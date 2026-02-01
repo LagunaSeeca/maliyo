@@ -117,12 +117,12 @@
         "notes": "Notes",
         "recurring": "Recurring",
         "categories": {
-            "food": "Food",
+            "food": "Food & Dining",
             "transport": "Transport",
             "utilities": "Utilities",
             "entertainment": "Entertainment",
             "shopping": "Shopping",
-            "health": "Health",
+            "health": "Health & Medical",
             "education": "Education",
             "travel": "Travel",
             "rent": "Rent",
@@ -136,8 +136,11 @@
             "utilityElectricity": "Electricity",
             "utilityGas": "Gas",
             "utilityWater": "Water",
+            "utilityInternet": "Internet",
+            "utilityPhone": "Phone",
             "savings": "Savings",
             "personalExpenses": "Personal Expenses",
+            "loanPayment": "Loan Payment",
             "birthdaysWeddings": "Birthdays & Weddings",
             "onlineShopping": "Online Shopping"
         }
@@ -193,7 +196,8 @@
             "yearly": "Yearly"
         },
         "noPayments": "No payments",
-        "day": "Day"
+        "day": "Day",
+        "paymentFor": "Payment for"
     },
     "family": {
         "title": "Family",

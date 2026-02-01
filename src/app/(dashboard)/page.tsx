@@ -46,6 +46,9 @@ interface MonthlyPayment {
     amount: string
     dayOfMonth: number
     lastPaidDate: string | null
+    dueDate: string
+    paymentMonth: string
+    isPaidThisMonth: boolean
 }
 
 interface DashboardStats {
@@ -289,9 +292,8 @@ function DashboardContent() {
                             ) : stats?.monthlyPayments && stats.monthlyPayments.length > 0 ? (
                                 <div className="space-y-4">
                                     {stats.monthlyPayments.map((payment) => {
-                                        const isPaid = payment.lastPaidDate &&
-                                            new Date(payment.lastPaidDate).getMonth() === new Date().getMonth() &&
-                                            new Date(payment.lastPaidDate).getFullYear() === new Date().getFullYear();
+                                        // Use isPaidThisMonth from API instead of computing locally
+                                        const isPaid = payment.isPaidThisMonth;
 
                                         return (
                                             <div key={payment.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 rounded-xl border border-border/60 bg-card hover:shadow-sm transition-shadow gap-3">
@@ -301,7 +303,7 @@ function DashboardContent() {
                                                     </div>
                                                     <div className="min-w-0">
                                                         <h4 className="font-medium text-foreground truncate">{payment.name}</h4>
-                                                        <p className="text-sm text-muted-foreground">{t.dashboard.dueOn}: {payment.dayOfMonth}</p>
+                                                        <p className="text-sm text-muted-foreground">{t.dashboard.dueOn}: {formatDate(payment.dueDate, 'dd MMMM yyyy')}</p>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 pl-10 sm:pl-0">

@@ -157,6 +157,44 @@ export async function GET(request: Request) {
         // Budget Left = Income - Expenses (savings already excluded from expenses)
         const budgetLeft = totalIncome - totalExpenses
 
+        // Process monthly payments to add due dates and filter by current month
+        const now = new Date()
+        const currentYear = now.getFullYear()
+        const currentMonth = now.getMonth() // 0-indexed
+        const currentMonthStart = new Date(currentYear, currentMonth, 1)
+
+        const processedPayments = monthlyPayments.map(payment => {
+            // Calculate the due date for the current month
+            const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
+            const dueDay = Math.min(payment.dayOfMonth, lastDayOfMonth)
+            const dueDate = new Date(currentYear, currentMonth, dueDay)
+
+            // Check if this payment is paid for the current month
+            const lastPaid = payment.lastPaidDate ? new Date(payment.lastPaidDate) : null
+            const isPaidThisMonth = lastPaid &&
+                lastPaid.getMonth() === currentMonth &&
+                lastPaid.getFullYear() === currentYear
+
+            // Format payment month label (e.g., "February 2026")
+            const paymentMonth = dueDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+
+            return {
+                ...payment,
+                amount: payment.amount.toString(),
+                dueDate: dueDate.toISOString(),
+                paymentMonth,
+                isPaidThisMonth,
+            }
+        }).filter(payment => {
+            // Show unpaid payments for current month
+            // Also show payments not paid from previous month (carry-over)
+            if (!payment.isPaidThisMonth) {
+                return true
+            }
+            // Hide payments already paid this month
+            return false
+        })
+
         return NextResponse.json({
             totalIncome,
             totalExpenses,
@@ -164,7 +202,7 @@ export async function GET(request: Request) {
             budgetLeft,
             loanBalance: totalLoanBalance,
             recentTransactions: transactions,
-            monthlyPayments,
+            monthlyPayments: processedPayments,
             expensesByCategory
         })
 

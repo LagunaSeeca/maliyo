@@ -136,8 +136,11 @@
             "utilityElectricity": "Электричество",
             "utilityGas": "Газ",
             "utilityWater": "Вода",
+            "utilityInternet": "Интернет",
+            "utilityPhone": "Телефон",
             "savings": "Накопления",
             "personalExpenses": "Личные расходы",
+            "loanPayment": "Выплата кредита",
             "birthdaysWeddings": "Дни рождения и свадьбы",
             "onlineShopping": "Онлайн покупки"
         }
@@ -193,7 +196,8 @@
             "yearly": "Ежегодно"
         },
         "noPayments": "Нет платежей",
-        "day": "День"
+        "day": "День",
+        "paymentFor": "Оплата за"
     },
     "family": {
         "title": "Семья",

@@ -69,18 +69,20 @@ const EXPENSE_CATEGORY_KEYS: Record<string, keyof Translations['expenses']['cate
     UTILITY_ELECTRICITY: 'utilityElectricity',
     UTILITY_GAS: 'utilityGas',
     UTILITY_WATER: 'utilityWater',
+    UTILITY_INTERNET: 'utilityInternet',
+    UTILITY_PHONE: 'utilityPhone',
+    RENT: 'rent',
     SAVINGS: 'savings',
     PERSONAL_EXPENSES: 'personalExpenses',
-    LOAN_PAYMENT: 'other',
-    BIRTHDAYS_WEDDINGS: 'birthdaysWeddings',
-    ONLINE_SHOPPING: 'onlineShopping',
+    LOAN_PAYMENT: 'loanPayment',
+    INSURANCE: 'insurance',
     HEALTH: 'health',
     EDUCATION: 'education',
-    TRAVEL: 'travel',
-    RENT: 'rent',
-    INSURANCE: 'insurance',
-    SUBSCRIPTIONS: 'subscriptions',
     ENTERTAINMENT: 'entertainment',
+    SUBSCRIPTIONS: 'subscriptions',
+    TRAVEL: 'travel',
+    BIRTHDAYS_WEDDINGS: 'birthdaysWeddings',
+    ONLINE_SHOPPING: 'onlineShopping',
     OTHER: 'other',
 }
 
@@ -115,31 +117,69 @@ export const INCOME_CATEGORY_LABELS: Record<string, string> = {
 export const EXPENSE_CATEGORY_LABELS: Record<string, string> = {
     TRANSPORT: "Transport",
     PETROL: "Petrol",
+    FOOD: "Food & Dining",
     BABY_FOOD: "Baby Food",
     BABY_DIAPERS: "Baby Diapers",
     GROCERY: "Grocery Shopping",
     UTILITY_ELECTRICITY: "Electricity",
     UTILITY_GAS: "Gas",
     UTILITY_WATER: "Water",
+    UTILITY_INTERNET: "Internet",
+    UTILITY_PHONE: "Phone",
+    RENT: "Rent",
     SAVINGS: "Savings",
     PERSONAL_EXPENSES: "Personal Expenses",
     LOAN_PAYMENT: "Loan Payment",
+    INSURANCE: "Insurance",
+    HEALTH: "Health & Medical",
+    EDUCATION: "Education",
+    ENTERTAINMENT: "Entertainment",
+    SUBSCRIPTIONS: "Subscriptions",
+    TRAVEL: "Travel",
     BIRTHDAYS_WEDDINGS: "Birthdays & Weddings",
     ONLINE_SHOPPING: "Online Shopping",
+    OTHER: "Other",
 }
 
 export const EXPENSE_CATEGORY_ICONS: Record<string, string> = {
     TRANSPORT: "Car",
     PETROL: "Fuel",
+    FOOD: "UtensilsCrossed",
     BABY_FOOD: "Baby",
     BABY_DIAPERS: "Baby",
     GROCERY: "ShoppingCart",
     UTILITY_ELECTRICITY: "Zap",
     UTILITY_GAS: "Flame",
     UTILITY_WATER: "Droplet",
+    UTILITY_INTERNET: "Wifi",
+    UTILITY_PHONE: "Phone",
+    RENT: "Home",
     SAVINGS: "PiggyBank",
     PERSONAL_EXPENSES: "User",
     LOAN_PAYMENT: "CreditCard",
+    INSURANCE: "Shield",
+    HEALTH: "Heart",
+    EDUCATION: "GraduationCap",
+    ENTERTAINMENT: "Gamepad2",
+    SUBSCRIPTIONS: "Repeat",
+    TRAVEL: "Plane",
     BIRTHDAYS_WEDDINGS: "Gift",
     ONLINE_SHOPPING: "ShoppingBag",
+    OTHER: "MoreHorizontal",
+}
+
+// Format due date for monthly payments (e.g., "01 February 2026")
+export function formatPaymentDueDate(dayOfMonth: number, targetDate: Date = new Date()): string {
+    const year = targetDate.getFullYear()
+    const month = targetDate.getMonth()
+    // Handle days that exceed the month's length (e.g., day 31 in February)
+    const lastDayOfMonth = new Date(year, month + 1, 0).getDate()
+    const day = Math.min(dayOfMonth, lastDayOfMonth)
+    const date = new Date(year, month, day)
+    return format(date, "dd MMMM yyyy")
+}
+
+// Get the month name and year for a payment (e.g., "February 2026")
+export function getPaymentMonthLabel(date: Date = new Date()): string {
+    return format(date, "MMMM yyyy")
 }

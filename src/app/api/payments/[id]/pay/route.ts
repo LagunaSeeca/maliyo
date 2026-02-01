@@ -43,12 +43,13 @@ export async function POST(
             }
         }
 
-        // Create expense record
+        // Create expense record with payment month in note
+        const paymentMonthLabel = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
         const expense = await prisma.expense.create({
             data: {
                 amount: payment.amount,
                 category: payment.category,
-                note: `Monthly Payment: ${payment.name}`,
+                note: `${payment.name} - ${paymentMonthLabel}`,
                 date: now,
                 personId: user.familyMember!.id,
                 familyId: family.id,
