@@ -101,9 +101,9 @@ export async function GET(request: Request) {
             }),
         ])
 
-        const totalIncome = Number(incomeAgg._sum.amount || 0)
-        const totalExpenses = Number(expenseAgg._sum.amount || 0)
-        const totalSavingsExpenses = Number(savingsAgg._sum.amount || 0)
+        const totalIncome = Number(incomeAgg._sum.amount?.toString() || 0)
+        const totalExpenses = Number(expenseAgg._sum.amount?.toString() || 0)
+        const totalSavingsExpenses = Number(savingsAgg._sum.amount?.toString() || 0)
 
         // Net Savings = Sum of expenses categorized as "SAVINGS"
         // User requested strict definition: Income doesn't count, only explicit savings allocations count.
@@ -111,8 +111,8 @@ export async function GET(request: Request) {
 
         // Calculate total loan balance
         const totalLoanBalance = loans.reduce((acc, loan) => {
-            const totalPaid = loan.payments.reduce((sum, p) => sum + Number(p.amount), 0)
-            const balance = Number(loan.totalAmount) - totalPaid
+            const totalPaid = loan.payments.reduce((sum, p) => sum + Number(p.amount.toString()), 0)
+            const balance = Number(loan.totalAmount.toString()) - totalPaid
             return acc + (balance > 0 ? balance : 0)
         }, 0)
 
@@ -121,7 +121,7 @@ export async function GET(request: Request) {
             ...recentIncomes.map(i => ({
                 id: i.id,
                 type: 'income',
-                amount: Number(i.amount),
+                amount: Number(i.amount.toString()),
                 category: i.category,
                 person: i.person.name,
                 date: i.date,
@@ -129,7 +129,7 @@ export async function GET(request: Request) {
             ...recentExpenses.map(e => ({
                 id: e.id,
                 type: 'expense',
-                amount: Number(e.amount),
+                amount: Number(e.amount.toString()),
                 category: e.category,
                 person: e.person.name,
                 date: e.date,
@@ -151,7 +151,7 @@ export async function GET(request: Request) {
 
         const expensesByCategory = expensesByCategoryRaw.map(item => ({
             category: item.category,
-            amount: Number(item._sum.amount || 0),
+            amount: Number(item._sum.amount?.toString() || 0),
         }))
 
         // Budget Left = Income - Expenses (savings already excluded from expenses)
@@ -176,7 +176,12 @@ export async function GET(request: Request) {
                 lastPaid.getFullYear() === currentYear
 
             // Format payment month label (e.g., "February 2026")
-            const paymentMonth = dueDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+            let paymentMonth = ""
+            try {
+                paymentMonth = dueDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+            } catch (e) {
+                paymentMonth = `${dueDate.getMonth() + 1}/${dueDate.getFullYear()}`
+            }
 
             return {
                 ...payment,
@@ -206,10 +211,10 @@ export async function GET(request: Request) {
             expensesByCategory
         })
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Failed to fetch dashboard stats:", error)
         return NextResponse.json(
-            { error: "Failed to fetch stats" },
+            { error: "Failed to fetch stats", details: error.message || String(error) },
             { status: 500 }
         )
     }
